@@ -1,5 +1,5 @@
 import numpy as np
-import scipy as sc
+from scipy import stats
 from copy import deepcopy
 
 class Environment():
@@ -17,38 +17,48 @@ class Environment():
         self.Prob_Buy=Prob_Buy
 
     def round(self):
-            return 0;
-
-
-
-    def site_landing(self,landing_product,activated_nodes):
-            ret=np.zeros(5);
-            ret[landing_product]=self.Prob_Buy[landing_product];#return always 1 for the current node
-            #exctract landing product column
-            Connectedness=self.Con_matrix[landing_product];#extract landing_product row
-            Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
-            if np.sum(Connectedness)==0:
-                return ret;#only current node returna
-            sec_prod=np.nonzero(Connectedness)[0];#secondary products
-            activated_nodes[landing_product]=0;#deactivate current node for the following steps
-            if sec_prod.size==2:
-                #values from getting ONLY to first or second secondary
-                First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-                Second_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*(1-Connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
-                #case in which both are visited
-                #both visited, first product
-                activated_nodes[sec_prod[1]]=0;
-                Both1_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-                activated_nodes[sec_prod[1]]=1;
-                activated_nodes[sec_prod[0]]=0;
-                Both2_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
-                #can be executed recoursively
-                return ret+First_ret+Second_ret+Both1_ret+Both2_ret;
-            
-            First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-            return ret+First_ret;
+        alphas=stats.dirichlet.rvs(conpam_matrix[0], size=1);
+        alphas[0];#to competitors
         
+        Value_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
+        Value_from_alpha2=alphas[2]*self.Prob_Buy[1]*self.site_landing(1,np.ones((5,1)));
+        Value_from_alpha3=alphas[3]*self.Prob_Buy[2]*self.site_landing(2,np.ones((5,1)));
+        Value_from_alpha4=alphas[4]*self.Prob_Buy[3]*self.site_landing(3,np.ones((5,1)));
+        Value_from_alpha5=alphas[5]*self.Prob_Buy[4]*self.site_landing(4,np.ones((5,1)));
 
+        Total_Value=Value_from_alpha1+Value_from_alpha2+Value_from_alpha3+Value_from_alpha4+Value_from_alpha5;
+
+        return Total_Value;
+
+
+
+    def site_landing(self,landing_product,activated_nodes):#this case is with only ONE quantity bought and all the item have same price
+        ret=np.zeros(5);
+        ret[landing_product]=self.Prob_Buy[landing_product];#return always 1 for the current node
+        #exctract landing product column
+        Connectedness=self.Con_matrix[landing_product];#extract landing_product row
+            Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
+        if np.sum(Connectedness)==0:
+            return ret;#only current node returna
+        sec_prod=np.nonzero(Connectedness)[0];#secondary products
+        activated_nodes[landing_product]=0;#deactivate current node for the following steps
+        
+        if sec_prod.size==2:
+            #values from getting ONLY to first or second secondary
+            First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
+            Second_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*(1-Connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
+            #case in which both are visited
+            #both visited, first product
+            activated_nodes[sec_prod[1]]=0;
+            Both1_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
+            activated_nodes[sec_prod[1]]=1;
+            activated_nodes[sec_prod[0]]=0;
+            Both2_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
+            #can be executed recoursively
+            return ret+First_ret+Second_ret+Both1_ret+Both2_ret;
+            
+        First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
+        return ret+First_ret;
 
         
 
