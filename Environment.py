@@ -1,5 +1,6 @@
 import numpy as np
 import scipy as sc
+from copy import deepcopy
 
 class Environment():
     #conpam_matrix with in  i-th column the i-th concentration parameter of the
@@ -32,19 +33,19 @@ class Environment():
             activated_nodes[landing_product]=0;#deactivate current node for the following steps
             if sec_prod.size==2:
                 #values from getting ONLY to first or second secondary
-                First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],activated_nodes);
-                Second_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*(1-Connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],activated_nodes);
+                First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
+                Second_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*(1-Connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
                 #case in which both are visited
                 #both visited, first product
                 activated_nodes[sec_prod[1]]=0;
-                Both1_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],activated_nodes);
+                Both1_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
                 activated_nodes[sec_prod[1]]=1;
                 activated_nodes[sec_prod[0]]=0;
-                Both2_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],activated_nodes);
+                Both2_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
                 #can be executed recoursively
                 return ret+First_ret+Second_ret+Both1_ret+Both2_ret;
             
-            First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],activated_nodes);
+            First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
             return ret+First_ret;
         
 
