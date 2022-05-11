@@ -1,9 +1,10 @@
+import imp
 import numpy as np
 from scipy import stats
 from copy import deepcopy
 from tqdm import tqdm
-
-class Environment():
+from Environment import Environment
+class RandomEnvironment():
     #conpam_matrix with in  i-th column the i-th concentration parameter of the
     #dirichlet distribution, in the j-th row the j-th seasonality period.
     #Connectivity matrix of the graph(can change with seasoality?) P_ij denotes
@@ -54,8 +55,9 @@ if __name__=='__main__':
                                     [0.16, 0.34, 0.15, 0.25, 0],
                                     ])
     prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
-    n_sim = 100000
+    n_sim = 10000
 
-    env = Environment(con_matrix, connectivity_matrix, prob_buy, n_sim)
+    env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, n_sim)
+    #env = Environment(con_matrix, connectivity_matrix, prob_buy)
     probs = env.round()
     print(probs)
