@@ -1,7 +1,5 @@
-import imp
 import numpy as np
 from scipy import stats
-from copy import deepcopy
 from tqdm import tqdm
 from Environment import Environment
 class RandomEnvironment():
@@ -47,15 +45,15 @@ class RandomEnvironment():
 
 """Just for testing""" 
 if __name__=='__main__':
-    con_matrix = [[0.2, 0.2, 0.15, 0.2, 0.1, 0.15]]
+    con_matrix = [[0.2, 0.10, 0.15, 0.2, 0.22, 0.13]]
     connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],
                                     [0.5, 0, 0.1, 0.3, 0.1],
-                                    [0.2, 0.2, 0, 0.2, 0.4],
-                                    [0.15, 0.15, 0.30, 0, 0.4],
+                                    [0.3, 0.2, 0, 0.1, 0.4],
+                                    [0.13, 0.17, 0.30, 0, 0.4],
                                     [0.16, 0.34, 0.15, 0.25, 0],
                                     ])
     prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
-    n_sim = 10000
+    n_sim = 10
 
     env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, n_sim)
     #env = Environment(con_matrix, connectivity_matrix, prob_buy)
