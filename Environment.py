@@ -38,7 +38,7 @@ class Environment():
 
     def site_landing(self,landing_product,activated_nodes):
         ret=np.zeros(5);
-        ret[landing_product]=self.Prob_Buy[landing_product];#return always 1 for the current node
+        ret[landing_product]=1;#return always 1 for the current node
         #exctract landing product column
         Connectedness=self.Con_matrix[landing_product];#extract landing_product row
             Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
