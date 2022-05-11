@@ -40,7 +40,7 @@ class RandomEnvironment():
         move = np.random.binomial(1, sec_prod_prob[secondary_products[-1]]) # if 0 should return always 0, TODO check
         if move:
             self.site_landing(secondary_products[-1], activated_nodes)
-        np.random.binomial(1, sec_prod_prob[secondary_products[-2]]) # if 0 should return always 0, TODO check move = 
+        move = np.random.binomial(1, sec_prod_prob[secondary_products[-2]]) # if 0 should return always 0, TODO check move = 
         if move:
             self.site_landing(secondary_products[-2], activated_nodes)
         return activated_nodes
