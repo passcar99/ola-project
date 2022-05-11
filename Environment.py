@@ -16,8 +16,12 @@ class Environment():
         self.lam=0.5;#implicit in Con_matrix
         self.Prob_Buy=Prob_Buy
 
+
+    #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
+    #the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
+    #by the returns associated to that probability
     def round(self):
-        alphas=stats.dirichlet.rvs(conpam_matrix[0], size=1);
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1)[0];
         alphas[0];#to competitors
         
         Value_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
@@ -32,7 +36,7 @@ class Environment():
 
 
 
-    def site_landing(self,landing_product,activated_nodes):#this case is with only ONE quantity bought and all the item have same price
+    def site_landing(self,landing_product,activated_nodes):
         ret=np.zeros(5);
         ret[landing_product]=self.Prob_Buy[landing_product];#return always 1 for the current node
         #exctract landing product column
