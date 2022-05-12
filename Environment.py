@@ -38,15 +38,17 @@ class Environment():
 
     def site_landing(self,landing_product,activated_nodes):
         ret=np.zeros(5);
+        if(activated_nodes[landing_product] == 0):
+            return 0
         ret[landing_product]=1;#return always 1 for the current node
         #exctract landing product column
         Connectedness=self.Con_matrix[landing_product];#extract landing_product row
         Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
         if np.sum(Connectedness)==0:
             return ret;#only current node returna
-        sec_prod=np.nonzero(Connectedness)[0];#secondary products
+        #sec_prod=np.nonzero(Connectedness)[0];#secondary products
+        sec_prod = np.flip(np.argsort(Connectedness)[-2:])
         activated_nodes[landing_product]=0;#deactivate current node for the following steps
-        
         if sec_prod.size==2:
             #values from getting ONLY to first or second secondary
             First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes));

@@ -19,11 +19,12 @@ class RandomEnvironment():
         self.n_sim = n_sim
 
     def round(self):
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)[0]
         alphas[0];#to competitors
         prob = np.zeros((5, 1))
         for i in tqdm(range(self.n_sim)):
-            landing_product = np.nonzero(np.random.multinomial(1, alphas[0][1:])) # do not consider competitor, take only nonzero index
+            #print(i)
+            landing_product = np.nonzero(np.random.multinomial(1, alphas[1:])) # do not consider competitor, take only nonzero index
             prob += self.site_landing(landing_product, np.zeros((5, 1)), np.zeros((5, 1)))
         return prob/self.n_sim
 
@@ -37,6 +38,8 @@ class RandomEnvironment():
         bought_nodes[landing_product] = 1
         sec_prod_prob = self.con_matrix[landing_product].flatten()
         secondary_products = np.argsort(sec_prod_prob)
+        if(len(secondary_products)==0) :
+            return bought_nodes
         first_sec = secondary_products[-1]
         second_sec = secondary_products[-2]
         move = np.random.binomial(1, sec_prod_prob[first_sec]*(1-activated_nodes[first_sec])) # if 0 should return always 0, TODO check
