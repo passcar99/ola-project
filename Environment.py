@@ -21,7 +21,7 @@ class Environment():
     #the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
     #by the returns associated to that probability
     def round(self):
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1)[0];
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)[0];
         alphas[0];#to competitors
         
         Value_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
@@ -41,7 +41,7 @@ class Environment():
         ret[landing_product]=self.Prob_Buy[landing_product];#return always 1 for the current node
         #exctract landing product column
         Connectedness=self.Con_matrix[landing_product];#extract landing_product row
-            Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
+        Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
         if np.sum(Connectedness)==0:
             return ret;#only current node returna
         sec_prod=np.nonzero(Connectedness)[0];#secondary products

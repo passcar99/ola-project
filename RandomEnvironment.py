@@ -2,6 +2,7 @@ import numpy as np
 from scipy import stats
 from tqdm import tqdm
 from Environment import Environment
+
 class RandomEnvironment():
     #conpam_matrix with in  i-th column the i-th concentration parameter of the
     #dirichlet distribution, in the j-th row the j-th seasonality period.
@@ -18,30 +19,33 @@ class RandomEnvironment():
         self.n_sim = n_sim
 
     def round(self):
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1)
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)
         alphas[0];#to competitors
         prob = np.zeros((5, 1))
         for i in tqdm(range(self.n_sim)):
             landing_product = np.nonzero(np.random.multinomial(1, alphas[0][1:])) # do not consider competitor, take only nonzero index
-            prob += self.site_landing(landing_product, np.zeros((5, 1)))
+            prob += self.site_landing(landing_product, np.zeros((5, 1)), np.zeros((5, 1)))
         return prob/self.n_sim
 
 
 
-    def site_landing(self,landing_product,activated_nodes):#this case is with only ONE quantity bought and all the item have same price
+    def site_landing(self,landing_product,activated_nodes, bought_nodes):#this case is with only ONE quantity bought and all the item have same price
+        activated_nodes[landing_product] = 1
         buy = np.random.binomial(1, self.prob_buy[landing_product])
         if buy == 0:
-            return activated_nodes
-        activated_nodes[landing_product] = 1
+            return bought_nodes
+        bought_nodes[landing_product] = 1
         sec_prod_prob = self.con_matrix[landing_product].flatten()
         secondary_products = np.argsort(sec_prod_prob)
-        move = np.random.binomial(1, sec_prod_prob[secondary_products[-1]]) # if 0 should return always 0, TODO check
+        first_sec = secondary_products[-1]
+        second_sec = secondary_products[-2]
+        move = np.random.binomial(1, sec_prod_prob[first_sec]*(1-activated_nodes[first_sec])) # if 0 should return always 0, TODO check
         if move:
-            self.site_landing(secondary_products[-1], activated_nodes)
-        move = np.random.binomial(1, sec_prod_prob[secondary_products[-2]]) # if 0 should return always 0, TODO check move = 
+            self.site_landing(first_sec, activated_nodes, bought_nodes)
+        move = np.random.binomial(1, sec_prod_prob[second_sec]*(1-activated_nodes[second_sec])) # if 0 should return always 0, TODO check
         if move:
-            self.site_landing(secondary_products[-2], activated_nodes)
-        return activated_nodes
+            self.site_landing(second_sec, activated_nodes, bought_nodes)
+        return bought_nodes
 
 """Just for testing""" 
 if __name__=='__main__':
@@ -53,9 +57,9 @@ if __name__=='__main__':
                                     [0.16, 0.34, 0.15, 0.25, 0],
                                     ])
     prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
-    n_sim = 10
-
+    n_sim = 10000
     env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, n_sim)
-    #env = Environment(con_matrix, connectivity_matrix, prob_buy)
+    env2 = Environment(con_matrix, connectivity_matrix, prob_buy)
     probs = env.round()
-    print(probs)
+    probs2 = env2.round()
+    print(probs, probs2)
