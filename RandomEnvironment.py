@@ -31,6 +31,7 @@ class RandomEnvironment():
             prob += self.site_landing(landing_product-1, np.zeros((5, 1), dtype=int), np.zeros((5, 1), dtype=int))
         return prob/self.n_sim
 
+
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
         x1, y1 = min_budget, 0
         x2, y2 = max_budget, alpha_bar
@@ -76,6 +77,9 @@ if __name__=='__main__':
     np.random.seed(42)
     n_sim = 10000
     env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, n_sim)
+    """ import matplotlib.pyplot as plt
+    plt.plot(env.alpha_function(5, 100, 20)(np.linspace(-5, 200, 2000)))
+    plt.show() """
     env2 = Environment(con_matrix, connectivity_matrix, prob_buy)
     probs = env.round().flatten()
     probs2 = env2.round()
