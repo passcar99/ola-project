@@ -11,11 +11,13 @@ class Environment():
     #that the secondary products are fixed the lambda is implicit.
     #Lambda decay from being the second secondary product.
     #Prob_Buy probability that i-th product is bought
-    def __init__(self,conpam_matrix,Con_matrix,Prob_Buy):
+    def __init__(self,conpam_matrix,Con_matrix,Prob_Buy,Expected_number_sold,Margins):
         self.conpam_matrix=conpam_matrix;
         self.Con_matrix=Con_matrix;
         self.lam=0.5;#implicit in Con_matrix
         self.Prob_Buy=Prob_Buy
+        self.Expected_number_sold=Expected_number_sold;
+        self.Margins=Margins;
 
 
     #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
@@ -25,11 +27,18 @@ class Environment():
         alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)[0];
         alphas[0];#to competitors
         
-        Value_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
-        Value_from_alpha2=alphas[2]*self.Prob_Buy[1]*self.site_landing(1,np.ones((5,1)));
-        Value_from_alpha3=alphas[3]*self.Prob_Buy[2]*self.site_landing(2,np.ones((5,1)));
-        Value_from_alpha4=alphas[4]*self.Prob_Buy[3]*self.site_landing(3,np.ones((5,1)));
-        Value_from_alpha5=alphas[5]*self.Prob_Buy[4]*self.site_landing(4,np.ones((5,1)));
+        Probability_of_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
+        Probability_of_alpha2=alphas[2]*self.Prob_Buy[1]*self.site_landing(1,np.ones((5,1)));
+        Probability_of_alpha3=alphas[3]*self.Prob_Buy[2]*self.site_landing(2,np.ones((5,1)));
+        Probability_of_alpha4=alphas[4]*self.Prob_Buy[3]*self.site_landing(3,np.ones((5,1)));
+        Probability_of_alpha5=alphas[5]*self.Prob_Buy[4]*self.site_landing(4,np.ones((5,1)));
+
+        Value_from_alpha1=Probability_of_alpha1*self.Expected_number_sold[1]*self.Margins[1];
+        Value_from_alpha2=Probability_of_alpha2*self.Expected_number_sold[2]*self.Margins[2];
+        Value_from_alpha3=Probability_of_alpha3*self.Expected_number_sold[3]*self.Margins[3];
+        Value_from_alpha4=Probability_of_alpha4*self.Expected_number_sold[4]*self.Margins[4];
+        Value_from_alpha5=Probability_of_alpha5*self.Expected_number_sold[5]*self.Margins[5];
+        
 
         Total_Value=Value_from_alpha1+Value_from_alpha2+Value_from_alpha3+Value_from_alpha4+Value_from_alpha5;
 
