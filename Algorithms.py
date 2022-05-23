@@ -5,7 +5,7 @@ from copy import deepcopy
 value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent
 -inf = -np.inf
 """
-def budget_allocations(value_matrix, budgets):
+def budget_allocations(value_matrix, budgets, subtract_budget=False):
     n_products = value_matrix.shape[0]
     n_budgets = value_matrix.shape[1]
     solution_value = np.zeros(shape=(n_products+1, n_budgets)) #actually we need just the previous row (TODO make more efficient later)
@@ -32,6 +32,8 @@ def budget_allocations(value_matrix, budgets):
             new_solution.append(sol)
             solution_value[product+1, i] = np.max(values)
         solution = new_solution
+    if subtract_budget:
+        solution_value[n_products] -= np.array(budgets)
     best_comb = np.argmax(solution_value[n_products])
     print(solution_value)
     return solution[best_comb], solution_value[n_products, best_comb]
@@ -47,6 +49,8 @@ if __name__=='__main__':
                             ])
     budgets = [0, 10, 20, 30, 40, 50, 60, 70]
     print(budget_allocations(value_matrix, budgets))
+    print('Subtract budget')
+    print(budget_allocations(value_matrix, budgets, True))
 
 
                     
