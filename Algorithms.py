@@ -2,7 +2,7 @@ from cmath import inf
 import numpy as np
 from copy import deepcopy
 """ 
-value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent
+value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
 -inf = -np.inf
 """
 def budget_allocations(value_matrix, budgets, subtract_budget=False):

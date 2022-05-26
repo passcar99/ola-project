@@ -3,6 +3,8 @@ from scipy import stats
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from Environment import Environment
+from UserClass import UserClass
+from typing import List, Dict
 
 class RandomEnvironment():
     #conpam_matrix with in  i-th column the i-th concentration parameter of the
@@ -12,24 +14,34 @@ class RandomEnvironment():
     #that the secondary products are fixed the lambda is implicit.
     #Lambda decay from being the second secondary product.
     #Prob_Buy probability that i-th product is bought
-    def __init__(self,conpam_matrix,con_matrix, prob_buy, n_sim):
-        self.conpam_matrix=conpam_matrix
+    def __init__(self,conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins):
+        self.user_classes = []
+        for user_class in conpam_matrix:
+            self.user_classes.append(UserClass(**user_class))
         self.con_matrix=con_matrix
         self.lam=0.5;#implicit in Con_matrix
         self.prob_buy=prob_buy
         self.n_sim = n_sim
+        self.avg_sold = avg_sold
+        self.margins = margins
+        
 
-    def round(self):
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1)[0]
+    def round(self, budgets):
+        alphas_list = []
+        n_users = []
+        for user_class in self.user_classes:
+            n_users.append(np.random.poisson(user_class.avg_number))
+            alphas_list.append(
+                stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1, random_state=42)[0])
         #alphas[0];#to competitors
-        print(alphas)
-        prob = np.zeros((5, 1), dtype=int)
-        for _ in tqdm(range(self.n_sim)):
-            landing_product = np.nonzero(np.random.multinomial(1, alphas))[0]
-            if landing_product == 0: #competitor
-                continue
-            prob += self.site_landing(landing_product-1, np.zeros((5, 1), dtype=int), np.zeros((5, 1), dtype=int))
-        return prob/self.n_sim
+        cusum = np.zeros((5, 1))
+        for i, n in enumerate(n_users):
+            for _ in tqdm(range(n)):
+                landing_product = np.nonzero(np.random.multinomial(1, alphas_list[i]))[0][0]
+                if landing_product == 0: #competitor
+                    continue
+                cusum += self.site_landing(landing_product-1, np.zeros((5, 1), dtype=int), np.zeros((5, 1)))
+        return cusum/self.n_sim
 
 
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
@@ -43,7 +55,10 @@ class RandomEnvironment():
         buy = np.random.binomial(1, self.prob_buy[landing_product])
         if buy == 0:
             return bought_nodes
-        bought_nodes[landing_product] = 1
+        num_bought = np.random.poisson(self.avg_sold[landing_product])
+        while num_bought==0:
+            num_bought = np.random.poisson(self.avg_sold[landing_product])
+        bought_nodes[landing_product] = num_bought*self.margins[landing_product]
         sec_prod_prob = self.con_matrix[landing_product].flatten()
         secondary_products = np.argsort(sec_prod_prob)
         if(len(secondary_products)==0) :
@@ -74,13 +89,20 @@ if __name__=='__main__':
                                     [0, 0.8, 0.4, 0., 0],
                                     ]) """
     prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
-    np.random.seed(42)
-    n_sim = 10000
-    env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, n_sim)
-    """ import matplotlib.pyplot as plt
+    n_sim = 100000
+
+    avg_sold = [5,6,7,8,9]
+    margins = [10, 20, 30, 40, 50]
+    """avg_sold = [1,1,1,1,1]
+    margins = [1,1,1,1,1] """
+    con_matrix = [{"alpha_params": [(0, 10, 2), (5, 10, 6),(5, 20, 10),(5, 50, 6),(5, 8, 6)], "features":[0, 0], "total_mass":64, "avg_number":100}, 
+                {"alpha_params": [(0, 10, 2), (5, 10, 6),(5, 20, 10),(5, 50, 6),(5, 8, 6)], "features":[0, 1], "total_mass":64, "avg_number":200}]
+    env = RandomEnvironment(con_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+    """import matplotlib.pyplot as plt
     plt.plot(env.alpha_function(5, 100, 20)(np.linspace(-5, 200, 2000)))
     plt.show() """
-    env2 = Environment(con_matrix, connectivity_matrix, prob_buy)
-    probs = env.round().flatten()
+    con_matrix = [[2, 10, 15, 2, 22, 13]]
+    env2 = Environment(con_matrix, connectivity_matrix, prob_buy, [10]+avg_sold, [10]+margins)
+    probs = env.round([10, 20, 6,50,45]).flatten()
     probs2 = env2.round()
     print('Random environment:', probs, 'Efficient environment: ', probs2, sep='\n')

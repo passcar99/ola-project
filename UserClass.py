@@ -6,16 +6,18 @@ class UserClass():
 
     """ 
     Class representing a category of users. 
-    To initialize pass a list of size "number of alphas - 1", a list of features 
-    and the total mass for the Dirichlet distribution (to control variance) TODO remove if not necessary, check
+    To initialize pass a list of size "number of alphas - 1", a list of features,
+    the total mass for the Dirichlet distribution (to control variance) [TODO check]
+    and avg_number the average number of users for that class [TODO change]
     ES: alpha_params = [(0, 10, 0.1), (5, 20, 0.5), ...]
     """
-    def __init__(self, alpha_params: List[Tuple], features: List, total_mass) -> None:
+    def __init__(self, alpha_params: List[Tuple], features: List, total_mass, avg_number) -> None:
         self.alpha_functions = []
         for tuple in alpha_params:
             self.alpha_functions.append(self.alpha_function(*tuple))
         self.features = features
         self.total_mass = total_mass
+        self.avg_number = avg_number
         
 
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
