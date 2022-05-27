@@ -33,11 +33,11 @@ class Environment():
         Probability_of_alpha4=alphas[4]*self.Prob_Buy[3]*self.site_landing(3,np.ones((5,1)));
         Probability_of_alpha5=alphas[5]*self.Prob_Buy[4]*self.site_landing(4,np.ones((5,1)));
 
-        Value_from_alpha1=Probability_of_alpha1*self.Expected_number_sold[1]*self.Margins[1];
-        Value_from_alpha2=Probability_of_alpha2*self.Expected_number_sold[2]*self.Margins[2];
-        Value_from_alpha3=Probability_of_alpha3*self.Expected_number_sold[3]*self.Margins[3];
-        Value_from_alpha4=Probability_of_alpha4*self.Expected_number_sold[4]*self.Margins[4];
-        Value_from_alpha5=Probability_of_alpha5*self.Expected_number_sold[5]*self.Margins[5];
+        Value_from_alpha1=Probability_of_alpha1*self.Expected_number_sold[0]*self.Margins[0];
+        Value_from_alpha2=Probability_of_alpha2*self.Expected_number_sold[1]*self.Margins[1];
+        Value_from_alpha3=Probability_of_alpha3*self.Expected_number_sold[2]*self.Margins[2];
+        Value_from_alpha4=Probability_of_alpha4*self.Expected_number_sold[3]*self.Margins[3];
+        Value_from_alpha5=Probability_of_alpha5*self.Expected_number_sold[4]*self.Margins[4];
         
 
         Total_Value=Value_from_alpha1+Value_from_alpha2+Value_from_alpha3+Value_from_alpha4+Value_from_alpha5;
