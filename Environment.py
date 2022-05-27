@@ -12,7 +12,7 @@ class Environment():
     #Lambda decay from being the second secondary product.
     #Prob_Buy probability that i-th product is bought
     def __init__(self,conpam_matrix,Con_matrix,Prob_Buy,Expected_number_sold,Margins):
-        self.conpam_matrix=conpam_matrix;
+        self.conpam_matrix=conpam_matrix;#will be get from the functions
         self.Con_matrix=Con_matrix;
         self.lam=0.5;#implicit in Con_matrix
         self.Prob_Buy=Prob_Buy
@@ -23,10 +23,15 @@ class Environment():
     #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
     #the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
     #by the returns associated to that probability
-    def round(self):
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0], size=1, random_state=42)[0];
-        alphas[0];#to competitors
+    def pull_arm(self,budgets):
+        #conpam_matrix will be actually be get from the functions, now for testing we will just add
+        budgets.insert(0,0)
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0]+budgets, size=1)[0];
+        print(alphas)
+        return self.round(alphas)
 
+
+    def round(self,alphas):#the clayrvoiant algorithm will innput the mean alphas(because he know the functions)
         
         Probability_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
         Probability_from_alpha2=alphas[2]*self.Prob_Buy[1]*self.site_landing(1,np.ones((5,1)));
