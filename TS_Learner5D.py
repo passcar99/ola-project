@@ -21,5 +21,7 @@ class TS_Learner5D(Learner5D):
         k=pulled_arm[2];
         l=pulled_arm[3];
         m=pulled_arm[4];
-        self.beta_parameters[i,j,k,l,m,0]=self.beta_parameters[i,j,k,l,m,0]+reward
-        self.beta_parameters[i,j,k,l,m,1]=self.beta_parameters[i,j,k,l,m,1]+1.0-reward
+        #for the update reward must be normalized...HOW?? For test taken empirically
+        self.beta_parameters[i,j,k,l,m,0]=self.beta_parameters[i,j,k,l,m,0]+reward/3
+        self.beta_parameters[i,j,k,l,m,1]=self.beta_parameters[i,j,k,l,m,1]+1.0-reward/3
+        

@@ -27,7 +27,6 @@ class Environment():
         #conpam_matrix will be actually be get from the functions, now for testing we will just add
         budgets.insert(0,0)
         alphas=stats.dirichlet.rvs(self.conpam_matrix[0]+budgets, size=1)[0];
-        print(alphas)
         return self.round(alphas)
 
 
