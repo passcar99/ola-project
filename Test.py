@@ -8,7 +8,8 @@ Con_matrix=np.array([[0,0.5,0.5,0,0],[0,0,0,0.5,0],[0,0,0,0,0.5],[0,0,0,0,0],[0,
 conpam_matrix=np.array([[1,.1,.1,.1,.1,.1]])#hhigher density on 1
 
 env=Environment(conpam_matrix,Con_matrix,Prob_Buy,[1,1,1,2,0],[1,1,1,1,1])
-
+#FOR DEBUG PURPOSES THIS BINARY CASE CAN BE EASILY REPRESENTED IN 1D PASSING FROM BINARY TO INTEGER AND PLOTTING CUMULATIVE DATA AND
+#EVENTUALLY THE BETA DISTRIBUTION
 arms_budgets=[0,1]
 
 learner=TS_Learner5D(2)
