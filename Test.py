@@ -1,7 +1,7 @@
 from TS_Learner5D import *
 from Environment import *
 import math
-
+import matplotlib.pyplot as plt
 
 Prob_Buy=np.array([1,1,1,1,1])
 Con_matrix=np.array([[0,0.5,0.5,0,0],[0,0,0,0.5,0],[0,0,0,0,0.5],[0,0,0,0,0],[0,0,0,0,0]])
@@ -13,8 +13,6 @@ env=Environment(conpam_matrix,Con_matrix,Prob_Buy,[1,1,1,2,0],[1,1,1,1,1])
 arms_budgets=[0,1]
 
 learner=TS_Learner5D(2)
-max_reward=0;
-vect_budget=[];
 
 Result=[]
 for k in range(32):#this should be a Clayrvoiant algorithm at all effects
@@ -34,14 +32,17 @@ for k in range(32):#this should be a Clayrvoiant algorithm at all effects
 
 print(Result)
 print("------------------------------------------")
-
-for i in range(1000):
+Cumulative=np.zeros(32);
+for i in range(3000):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
-    vect_budget.append(budget)
+    Number=int("".join(str(i) for i in budget),2)
+    Cumulative[Number]=Cumulative[Number]+1
     reward=env.pull_arm(budget)
     learner.update(multi_arm_idx,reward)
 
    
-print(vect_budget[-10:])
+print(Cumulative)
+plt.plot(Cumulative)
+plt.show()
 
