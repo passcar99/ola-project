@@ -1,16 +1,16 @@
-from Learner import Learner
+from Learner5D import *
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
-class GPTS_Learner(Learner):
+class GPTS_Learner(Learner5D):
 
     def __init__(self, n_arms, arms):
         super().__init__(n_arms)
-        self.arms = arms
-        self.means = np.zeros(self.n_arms)
-        self.sigmas = np.ones(self.n_arms)*10
+        self.arms = arms #matrix for each product the arms arms[i][j] i product, j arm's index
+        self.means = np.zeros((n_arms,n_arms,n_arms,n_arms,n_arms));#mean of the [i,j,k,m,l] multi-arm
+        self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;#var of the [i,j,k,m,l] multi-arm
         self.pulled_arms = []
         alpha = 1 # 10 in prof code
         kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
@@ -18,13 +18,26 @@ class GPTS_Learner(Learner):
 
     def update_observations(self, pulled_arm, reward):
         super().update_observations(pulled_arm, reward)
-        self.pulled_arms.append(self.arms[pulled_arm])
+        i=pulled_arm[0];
+        j=pulled_arm[1];
+        k=pulled_arm[2];
+        l=pulled_arm[3];
+        m=pulled_arm[4];
+        self.pulled_arms.append([self.arms[1][i],self.arms[1][j],self.arms[1][k],self.arms[1][l],self.arms[1][m]])
+        #so that in pulled arms there are 5D points
 
     def update_model(self):
-        x = np.atleast_2d(self.pulled_arms).T
+        x = self.pulled_arms
         y = self.collected_rewards
-        self.gp.fit(x, y)
-        self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std = True)
+        self.gp.fit(x, y.reshape(-1,1))
+        #Brute force with double cycle to generate matrix, there is definetly a better way
+        for i in range(self.n_arms):
+            for j in range(self.n_arms):
+                for k in range(self.n_arms):
+                    for l in range(self.n_arms):
+                        for m in range(self.n_arms):
+                            input_pred=np.array([[self.arms[1][i],self.arms[1][j],self.arms[1][k],self.arms[1][l],self.arms[1][m]]])
+                            self.means[i,j,k,l,m], self.sigmas[i,j,k,l,m] = self.gp.predict(input_pred, return_std = True)
         self.sigmas = np.maximum(self.sigmas, 1e-2)
 
     def update(self, pulled_arm, reward):
@@ -32,6 +45,9 @@ class GPTS_Learner(Learner):
         self.update_observations(pulled_arm, reward)
         self.update_model()
 
-    def pull_arm(self):
+    def pull_arm(self,constraint_mask):# constraint_mask a list of tuple of length 5 which identify the unavailable multi_arms
         sampled_values = np.random.normal(self.means, self.sigmas)
-        return np.argmax(sampled_values)
+        for t in constraint_mask:
+            sampled_values[t[0],t[1],t[2],t[3],t[4]]=-100000;
+        idx=np.unravel_index(np.argmax(sampled_values),sampled_values.shape)
+        return idx
