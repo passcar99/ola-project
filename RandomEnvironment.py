@@ -3,7 +3,7 @@ from scipy import stats
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 from Environment import Environment
-from UserClass import UserClass
+from UserCategory import UserCategory
 from typing import List, Dict
 
 class RandomEnvironment():
@@ -17,31 +17,108 @@ class RandomEnvironment():
     def __init__(self,conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins):
         self.user_classes = []
         for user_class in conpam_matrix:
-            self.user_classes.append(UserClass(**user_class))
+            self.user_classes.append(UserCategory(**user_class))
         self.con_matrix=con_matrix
         self.lam=0.5;#implicit in Con_matrix
         self.prob_buy=prob_buy
-        self.n_sim = n_sim
         self.avg_sold = avg_sold
-        self.margins = margins
+        self.margins = np.array(margins)
         
 
     def round(self, budgets):
-        alphas_list = []
-        n_users = []
-        for user_class in self.user_classes:
-            n_users.append(np.random.poisson(user_class.avg_number))
-            alphas_list.append(
-                stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1, random_state=42)[0])
-        #alphas[0];#to competitors
-        cusum = np.zeros((5, 1))
-        for i, n in enumerate(n_users):
-            for _ in tqdm(range(n)):
-                landing_product = np.nonzero(np.random.multinomial(1, alphas_list[i]))[0][0]
+        category_realizations = [{} for _ in range(len(self.user_classes))]
+
+        for i, user_class in enumerate(self.user_classes):
+            n_users = np.random.poisson(user_class.avg_number)
+            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            category_realizations[i]['n_users'] = n_users
+            category_realizations[i]['alphas'] = alphas
+
+        for n in category_realizations:
+            cusum = np.zeros((5))
+            for _ in tqdm(range(n['n_users'])):
+                landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
-                cusum += self.site_landing(landing_product-1, np.zeros((5, 1), dtype=int), np.zeros((5, 1)))
-        return cusum/self.n_sim
+                activated_nodes = np.zeros((5), dtype=int)
+                bought_nodes = np.zeros((5))
+                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+            n['profit'] = cusum.flatten()*self.margins.transpose()
+        return category_realizations
+
+    def round_step_4(self, budgets):
+        category_realizations = [{} for _ in range(len(self.user_classes))]
+        for i, user_class in enumerate(self.user_classes):
+            n_users = np.random.poisson(user_class.avg_number)
+            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            category_realizations[i]['n_users'] = n_users
+            category_realizations[i]['alphas'] = alphas
+
+        for user_category in category_realizations:
+            cusum = np.zeros((5))
+            items_sold = np.zeros((user_category['n_users'], 5))
+            for i in tqdm(range(user_category['n_users'])):
+                landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
+                if landing_product == 0: #competitor
+                    continue
+                activated_nodes = np.zeros((5), dtype=int)
+                bought_nodes = np.zeros((5))
+                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+                items_sold[i, :] = bought_nodes
+            user_category['items'] = items_sold
+            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+        return category_realizations
+
+    def round_step_5(self, budgets):
+        category_realizations = [{} for _ in range(len(self.user_classes))]
+        
+        for i, user_class in enumerate(self.user_classes):
+            n_users = np.random.poisson(user_class.avg_number)
+            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            category_realizations[i]['n_users'] = n_users
+            category_realizations[i]['alphas'] = alphas
+
+        for user_category in category_realizations:
+            cusum = np.zeros((5))
+            activation_history = np.zeros((user_category['n_users'], 5))
+            for i in tqdm(range(user_category['n_users'])):
+                landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
+                if landing_product == 0: #competitor
+                    continue
+                activated_nodes = np.zeros((5), dtype=int)
+                bought_nodes = np.zeros((5))
+                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+                activation_history[i, :] = activated_nodes
+            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+            user_category['activation_history'] = activation_history
+        return category_realizations
+
+    def round_step_7(self, budgets):
+        category_realizations = [{} for _ in range(len(self.user_classes))]
+        
+        for i, cat_idx in enumerate(self.user_classes):
+            n_users = np.random.poisson(cat_idx.avg_number)
+            alphas = stats.dirichlet.rvs(cat_idx.get_alpha_from_budgets(budgets), size=1)[0]
+            category_realizations[i]['n_users'] = n_users
+            category_realizations[i]['alphas'] = alphas
+
+        for cat_idx , user_category in enumerate(category_realizations):
+            cusum = np.zeros((5))
+            items_sold = np.zeros((user_category['n_users'], 5))
+            for i in tqdm(range(user_category['n_users'])):
+                landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
+                if landing_product == 0: #competitor
+                    continue
+                activated_nodes = np.zeros((5), dtype=int)
+                bought_nodes = np.zeros((5))
+                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+                items_sold[i, :] = bought_nodes
+            user_category['items'] = items_sold
+            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+            user_category['features'] = self.user_classes[cat_idx].features
+        return category_realizations
+    
+
 
 
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
@@ -58,7 +135,7 @@ class RandomEnvironment():
         num_bought = np.random.poisson(self.avg_sold[landing_product])
         while num_bought==0:
             num_bought = np.random.poisson(self.avg_sold[landing_product])
-        bought_nodes[landing_product] = num_bought*self.margins[landing_product]
+        bought_nodes[landing_product] = num_bought
         sec_prod_prob = self.con_matrix[landing_product].flatten()
         secondary_products = np.argsort(sec_prod_prob)
         if(len(secondary_products)==0) :
@@ -89,7 +166,6 @@ if __name__=='__main__':
                                     [0, 0.8, 0.4, 0., 0],
                                     ]) """
     prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
-    n_sim = 100000
 
     avg_sold = [5,6,7,8,9]
     margins = [10, 20, 30, 40, 50]
@@ -103,16 +179,7 @@ if __name__=='__main__':
     plt.show() """
     con_matrix = [[2, 10, 15, 2, 22, 13]]
     env2 = Environment(con_matrix, connectivity_matrix, prob_buy, [10]+avg_sold, [10]+margins)
-    probs = env.round([10, 20, 6,50,45]).flatten()
-    probs2 = env2.round()
-    print('Random environment:', probs, 'Efficient environment: ', probs2, sep='\n')
+    probs = env.round_step_7([10, 20, 6,50,45])
+    #probs2 = env2.round()
+    print('Random environment:', probs, )#'Efficient environment: ', probs2, sep='\n')
 
-    """ {
-        "n_users": List,
-        "profit": List/float
-        "alphas": List[List]/#cat*#prod
-        "items": List #prod
-        "activations": matrix #users*#prod
-        "features": matrix #cat*#features
-
-    } """

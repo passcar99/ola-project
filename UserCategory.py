@@ -2,7 +2,7 @@ from typing import Tuple, List
 from scipy.interpolate import interp1d
 import numpy as np
 
-class UserClass():
+class UserCategory():
 
     """ 
     Class representing a category of users. 
@@ -36,7 +36,7 @@ class UserClass():
 
 """ Just for testing. """
 if __name__=='__main__':
-    user_class = UserClass([(0, 10, 2), (5, 10, 6)], [0, 0], 10, 10)
+    user_class = UserCategory([(0, 10, 2), (5, 10, 6)], [0, 0], 10, 10)
     import matplotlib.pyplot as plt
     plt.plot(np.linspace(-5, 200, 2000), user_class.alpha_function(5, 100, 20)(np.linspace(-5, 200, 2000)))
     plt.show() 
