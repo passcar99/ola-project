@@ -106,3 +106,13 @@ if __name__=='__main__':
     probs = env.round([10, 20, 6,50,45]).flatten()
     probs2 = env2.round()
     print('Random environment:', probs, 'Efficient environment: ', probs2, sep='\n')
+
+    """ {
+        "n_users": List,
+        "profit": List/float
+        "alphas": List[List]/#cat*#prod
+        "items": List #prod
+        "activations": matrix #users*#prod
+        "features": matrix #cat*#features
+
+    } """

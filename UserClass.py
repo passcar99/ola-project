@@ -36,5 +36,8 @@ class UserClass():
 
 """ Just for testing. """
 if __name__=='__main__':
-    user_class = UserClass([(0, 10, 2), (5, 10, 6)], [0, 0], 10)
+    user_class = UserClass([(0, 10, 2), (5, 10, 6)], [0, 0], 10, 10)
+    import matplotlib.pyplot as plt
+    plt.plot(np.linspace(-5, 200, 2000), user_class.alpha_function(5, 100, 20)(np.linspace(-5, 200, 2000)))
+    plt.show() 
     print(user_class.get_alpha_from_budgets([20, 7.5]))
