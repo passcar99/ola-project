@@ -39,7 +39,7 @@ for i in range(32):
 print("------------------------------------------")
 Cumulative=np.zeros(32);
 LastCum=np.zeros(32);
-Nn=300;
+Nn=100;
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
@@ -57,7 +57,7 @@ plt.plot(Clayrvoiant, label="Expected Value")
 learner=GPTS_Learner(2,[[0,1],[0,1],[0,1],[0,1],[0,1]]);
 Cumulative=np.zeros(32);
 LastCum=np.zeros(32);
-Nn=300;
+
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
