@@ -16,13 +16,14 @@ class GPTS_Learner(Learner5D):
         alpha = 1 # 10 in prof code
         kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10)
-        [N1,N2,N3,N4,N5]=np.meshgrid(arms[0][:],arms[1][:],arms[2][:],arms[3][:],arms[4][:])
-        N1=np.reshape(N1,(np.prod(N1.shape)))
-        N2=np.reshape(N2,(np.prod(N2.shape)))
-        N3=np.reshape(N3,(np.prod(N3.shape)))
-        N4=np.reshape(N4,(np.prod(N4.shape)))
-        N5=np.reshape(N5,(np.prod(N5.shape)))
-        self.lattice_samples_features=np.array([N1,N2,N3,N4,N5]).T #matrix Mij with i identifying a superarm and j a product of such arm
+        #[N1,N2,N3,N4,N5]=np.meshgrid(arms[0][:],arms[1][:],arms[2][:],arms[3][:],arms[4][:])
+        #N1=N1.flatten()
+        #N2=N2.flatten()
+        #N3=N3.flatten()
+        #N4=N4.flatten()
+        #N5=N5.flatten()
+        #self.lattice_samples_features=np.array([N1,N2,N3,N4,N5]).T #matrix Mij with i identifying a superarm and j a product of such arm
+        
 
     def update_observations(self, pulled_arm, reward):
         super().update_observations(pulled_arm, reward)
@@ -39,18 +40,18 @@ class GPTS_Learner(Learner5D):
         y = self.collected_rewards
         self.gp.fit(x, y.reshape(-1,1))
         #Brute force with double cycle to generate matrix, there is definetly a better way
-        #for i in range(self.n_arms):
-        #    for j in range(self.n_arms):
-        #        for k in range(self.n_arms):
-        #            for l in range(self.n_arms):
-        #                for m in range(self.n_arms):
-        #                    input_pred=np.array([[self.arms[0][i],self.arms[1][j],self.arms[2][k],self.arms[3][l],self.arms[4][m]]])
-        #                    self.means[i,j,k,l,m], self.sigmas[i,j,k,l,m] = self.gp.predict(input_pred, return_std = True)
+        for i in range(self.n_arms):
+            for j in range(self.n_arms):
+                for k in range(self.n_arms):
+                    for l in range(self.n_arms):
+                        for m in range(self.n_arms):
+                            input_pred=np.array([[self.arms[0][i],self.arms[1][j],self.arms[2][k],self.arms[3][l],self.arms[4][m]]])
+                            self.means[i,j,k,l,m], self.sigmas[i,j,k,l,m] = self.gp.predict(input_pred, return_std = True)
         
-        means_array, sigmas_array = self.gp.predict(self.lattice_samples_features, return_std = True)
-        sigmas_array=np.reshape(sigmas_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
-        self.sigmas = np.maximum(sigmas_array, 1e-2)
-        self.means=np.reshape(means_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
+        #means_array, sigmas_array = self.gp.predict(self.lattice_samples_features, return_std = True)
+        #sigmas_array=np.reshape(sigmas_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
+        #self.sigmas = np.maximum(sigmas_array, 1e-2)
+        #self.means=np.reshape(means_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
         
 
     def update(self, pulled_arm, reward):

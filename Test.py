@@ -4,8 +4,8 @@ from Environment import *
 import math
 import matplotlib.pyplot as plt
 
-Prob_Buy=np.array([1,1,1,1,1])
-Con_matrix=np.array([[0,0.5,0.5,0,0],[0,0,0,0.5,0],[0,0,0,0,0.5],[0,0,0,0,0],[0,0,0,0,0]])
+Prob_Buy=np.array([1,0.5,1,1,1])
+Con_matrix=np.array([[0,0.5,0.3,0,0],[0,0,0,0.5,0.3],[0.3,0,0,0,0.5],[0.5,0.3,0,0,0],[0.3,0.5,0,0,0]])
 conpam_matrix=np.array([[1,.1,.1,.1,.1,.1]])#hhigher density on 1
 
 env=Environment(conpam_matrix,Con_matrix,Prob_Buy,[1,1,1,2,0],[1,1,1,1,1])
@@ -39,7 +39,7 @@ for i in range(32):
 print("------------------------------------------")
 Cumulative=np.zeros(32);
 LastCum=np.zeros(32);
-Nn=300;
+Nn=100;
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
