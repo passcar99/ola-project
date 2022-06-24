@@ -39,7 +39,7 @@ for i in range(32):
 print("------------------------------------------")
 Cumulative=np.zeros(32);
 LastCum=np.zeros(32);
-Nn=100;
+Nn=300;
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
@@ -68,6 +68,7 @@ for i in range(Nn):
     if i>(Nn-100):
         LastCum[Number]=LastCum[Number]+1
 
+print(Cumulative/Nn)
 plt.plot(Cumulative/Nn, label="GPTS % pulled")
 plt.legend(loc="upper left")
 plt.show()
