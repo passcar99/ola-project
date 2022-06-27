@@ -21,12 +21,14 @@ if __name__ == '__main__':
     arms = np.array([20, 30, 40, 50, 60])
     bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
 
+    env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+    
 
     ts_rewards_per_experiment = []
 
     n_experiments = 1
 
-    T = 50
+    T = 365
 
 
     for e in tqdm(range(n_experiments)):

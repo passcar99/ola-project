@@ -56,7 +56,7 @@ class GPTS_Learner(Learner):
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
             expected_margin = self.env.simplified_round(p, n_sim = 100)
-            value_matrix[p, :] += sampled_values[p, :] * expected_margin
+            value_matrix[p, :] += sampled_values[p, :]* expected_margin
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
         

@@ -13,7 +13,7 @@ from RandomEnvironment import RandomEnvironment
 
 class GPUCB_Learner(Learner):
     
-     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast'):
+    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast'):
         super().__init__(arms,conpam_matrix,con_matrix, prob_buy, avg_sold, margins, bounds)
         self.means = np.zeros((self.n_products, self.n_arms))
         #self.sigmas = np.ones((self.n_products, self.n_arms))*10
@@ -66,7 +66,7 @@ class GPUCB_Learner(Learner):
             ucb = self.means[p] + self.confidence[p] #where should i use it?
             expected_margins = np.sum(self.env.simplified_round(p, n_sim = 100))
             #return np.random.choice(np.where(ucb == ucb.max())[0]) -> how check this?
-         value_matrix = sampled_values * expected_margins
+        value_matrix = sampled_values * expected_margins
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
 
    
