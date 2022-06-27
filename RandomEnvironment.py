@@ -121,11 +121,11 @@ class RandomEnvironment():
 
 
 
-    def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
-        x1, y1 = min_budget, 0
-        x2, y2 = max_budget, alpha_bar
-        #return a function to be called as f(inputs) where inputs can be a number or an array
-        return interp1d([x1, x2], [y1, y2], kind='linear', bounds_error=False, fill_value=(y1, y2) )
+    def alpha_functions(self):
+        alpha_functions = []
+        for user_cat in self.user_classes:
+            alpha_functions.append(user_cat.alpha_functions)
+        return alpha_functions
 
     def site_landing(self,landing_product,activated_nodes, bought_nodes):#this case is with only ONE quantity bought and all the item have same price
         activated_nodes[landing_product] = 1
@@ -149,6 +149,21 @@ class RandomEnvironment():
         if move:
             self.site_landing(second_sec, activated_nodes, bought_nodes)
         return bought_nodes
+
+
+    def simplified_round(self, product, n_sim):
+        for _ in n_sim:
+            cusum = np.zeros((5))
+            landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
+            if landing_product == 0: #competitor
+                continue
+            activated_nodes = np.zeros((5), dtype=int)
+            bought_nodes = np.zeros((5))
+            cusum += self.site_landing(product, activated_nodes , bought_nodes)
+        expected_margin = cusum.flatten()*self.margins.transpose()
+        return expected_margin
+
+
 
 """Just for testing""" 
 if __name__=='__main__':
