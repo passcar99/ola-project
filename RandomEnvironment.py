@@ -150,6 +150,19 @@ class RandomEnvironment():
             self.site_landing(second_sec, activated_nodes, bought_nodes)
         return bought_nodes
 
+
+    def simplified_round(self, product, n_sim):
+        for _ in n_sim:
+            cusum = np.zeros((5))
+            landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
+            if landing_product == 0: #competitor
+                continue
+            activated_nodes = np.zeros((5), dtype=int)
+            bought_nodes = np.zeros((5))
+            cusum += self.site_landing(product, activated_nodes , bought_nodes)
+        expected_margin = cusum.flatten()*self.margins.transpose()
+        return expected_margin
+
 """Just for testing""" 
 if __name__=='__main__':
     con_matrix = [[2, 10, 15, 2, 22, 13]]

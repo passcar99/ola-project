@@ -49,6 +49,11 @@ class Environment():
 
         return Total_Value;
 
+    def simplified_round(self, product, n_sim = 0):
+        alphas = np.zeros((len(self.con_matrix)))
+        alphas[product+1 ]= 1
+        return round(alphas)
+
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
         x1, y1 = min_budget, 0
         x2, y2 = max_budget, alpha_bar
