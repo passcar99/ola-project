@@ -17,6 +17,10 @@ class Learner():
         self.avg_sold = avg_sold
         self.margins = margins
         self.bounds = bounds
+        self.unfeasible_arms = []
+        for p in range(self.n_products):
+            self.unfeasible_arms.append(np.logical_or(self.arms <= self.bounds[p][0], self.arms >= self.bounds[p][1]))
+
 
 
     def update_observations(self, pulled_arms, reward):

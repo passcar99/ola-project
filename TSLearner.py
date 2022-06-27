@@ -1,4 +1,3 @@
-from audioop import avg
 from random import sample
 from Learner import Learner
 import numpy as np
@@ -44,7 +43,6 @@ class GPTS_Learner(Learner):
             y = self.rewards_per_product[product]
             self.gps[product].fit(x, y)
             means, sigmas = self.gps[product].predict(self.arms.reshape(-1, 1), return_std = True)
-            print(means)
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 
@@ -55,10 +53,11 @@ class GPTS_Learner(Learner):
 
     def pull_arm(self):
         sampled_values = np.random.normal(self.means, self.sigmas)
-        expected_margins = np.array((self.n_products))
+        value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
-            expected_margins = np.sum(self.env.simplified_round(p, n_sim = 100))
-        value_matrix = sampled_values * expected_margins
+            expected_margin = self.env.simplified_round(p, n_sim = 100)
+            value_matrix[p, :] += sampled_values[p, :] * expected_margin
+            value_matrix[p, self.unfeasible_arms[p]] = -np.inf
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
         
 
@@ -78,7 +77,7 @@ if __name__ == '__main__':
                     ]
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     arms = np.array([20, 30, 40, 50, 60])
-    bounds = np.array([[0, 100],[0, 100],[0, 100],[0, 100],[0, 100]])
+    bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
     learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
 
     for _ in range(10):

@@ -32,7 +32,7 @@ class UserCategory():
         for i, bdg in enumerate(budgets):
             alphas.append(self.alpha_functions[i](bdg))
         alphas.insert(0, self.total_mass-sum(alphas)) #alpha0
-        return np.array(alphas, dtype=np.double)
+        return np.array(alphas, dtype=np.double).flatten()
 
 """ Just for testing. """
 if __name__=='__main__':
