@@ -55,6 +55,8 @@ class GPTS_Learner(Learner5D):
         
 
     def update(self, pulled_arm, reward):
+        #THE REWARD MUST BE NORMALIZED!!
+        reward=reward/3
         self.t += 1
         self.update_observations(pulled_arm, reward)
         self.update_model()

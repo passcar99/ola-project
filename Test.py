@@ -3,7 +3,7 @@ from GPTS_Learner import *
 from Environment import *
 import math
 import matplotlib.pyplot as plt
-
+np.random.seed(37)
 Prob_Buy=np.array([1,0.5,1,1,1])
 Con_matrix=np.array([[0,0.5,0.3,0,0],[0,0,0,0.5,0.3],[0.3,0,0,0,0.5],[0.5,0.3,0,0,0],[0.3,0.5,0,0,0]])
 conpam_matrix=np.array([[1,.1,.1,.1,.1,.1]])#hhigher density on 1
@@ -24,8 +24,13 @@ for k in range(32):#this should be a Clayrvoiant algorithm at all effects
     else:
         zero_to_add=math.ceil(5-math.log(k,2))
         
-    for l in range(zero_to_add):
+    for l in range(zero_to_add-1):
         res.insert(0,0)
+
+    res.reverse()
+    res.insert(0,0)
+    
+    
     DirPar=conpam_matrix[0]+res
     ParSum=np.sum(DirPar)
     alpha_mean = [i/ParSum for i in DirPar]
@@ -43,7 +48,9 @@ Nn=100;
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
+    budget.reverse()
     Number=int("".join(str(i) for i in budget),2)
+    budget.reverse()
     Cumulative[Number]=Cumulative[Number]+1
     reward=env.pull_arm(budget)
     learner.update(multi_arm_idx,reward)
@@ -61,7 +68,9 @@ LastCum=np.zeros(32);
 for i in range(Nn):
     multi_arm_idx=learner.pull_arm([])
     budget=[arms_budgets[multi_arm_idx[0]],arms_budgets[multi_arm_idx[1]],arms_budgets[multi_arm_idx[2]],arms_budgets[multi_arm_idx[3]],arms_budgets[multi_arm_idx[4]]]
+    budget.reverse()
     Number=int("".join(str(i) for i in budget),2)
+    budget.reverse()
     Cumulative[Number]=Cumulative[Number]+1
     reward=env.pull_arm(budget)
     learner.update(multi_arm_idx,reward)

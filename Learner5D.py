@@ -18,5 +18,5 @@ class Learner5D:
         l=pulled_arm[3];
         m=pulled_arm[4];
         
-        self.rewards_per_arm[i+self.n_arms*j+self.n_arms^2*k+self.n_arms^3*l+self.n_arms^4*m].append(reward)
+        self.rewards_per_arm[i+self.n_arms*j+pow(self.n_arms,2)*k+pow(self.n_arms,3)*l+pow(self.n_arms,4)*m].append(reward)
         self.collected_rewards=np.append(self.collected_rewards,reward)
