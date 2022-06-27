@@ -11,13 +11,13 @@ class Environment():
     #that the secondary products are fixed the lambda is implicit.
     #Lambda decay from being the second secondary product.
     #Prob_Buy probability that i-th product is bought
-    def __init__(self,conpam_matrix,Con_matrix,Prob_Buy,Expected_number_sold,Margins):
-        self.conpam_matrix=conpam_matrix;#will be get from the functions
-        self.Con_matrix=Con_matrix;
-        self.lam=0.5;#implicit in Con_matrix
-        self.Prob_Buy=Prob_Buy
-        self.Expected_number_sold=Expected_number_sold;
-        self.Margins=Margins;
+    def __init__(self,conpam_matrix,con_matrix,prob_buy,expected_number_sold,margins):
+        self.conpam_matrix=conpam_matrix#will be get from the functions
+        self.con_matrix=con_matrix
+        self.lam=0.5#implicit in Con_matrix
+        self.prob_buy=prob_buy
+        self.expected_number_sold=expected_number_sold
+        self.margins=margins
 
 
     #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
@@ -26,33 +26,33 @@ class Environment():
     def pull_arm(self,budgets):
         #conpam_matrix will be actually be get from the functions, now for testing we will just add
         budgets.insert(0,0)
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0]+budgets, size=1)[0];
+        alphas=stats.dirichlet.rvs(self.conpam_matrix[0]+budgets, size=1)[0]
         return self.round(alphas)
 
 
     def round(self,alphas):#the clayrvoiant algorithm will innput the mean alphas(because he know the functions)
         
-        Probability_from_alpha1=alphas[1]*self.Prob_Buy[0]*self.site_landing(0,np.ones((5,1)));
-        Probability_from_alpha2=alphas[2]*self.Prob_Buy[1]*self.site_landing(1,np.ones((5,1)));
-        Probability_from_alpha3=alphas[3]*self.Prob_Buy[2]*self.site_landing(2,np.ones((5,1)));
-        Probability_from_alpha4=alphas[4]*self.Prob_Buy[3]*self.site_landing(3,np.ones((5,1)));
-        Probability_from_alpha5=alphas[5]*self.Prob_Buy[4]*self.site_landing(4,np.ones((5,1)));
+        probability_from_alpha1=alphas[1]*self.prob_buy[0]*self.site_landing(0,np.ones((5,1)))
+        probability_from_alpha2=alphas[2]*self.prob_buy[1]*self.site_landing(1,np.ones((5,1)))
+        probability_from_alpha3=alphas[3]*self.prob_buy[2]*self.site_landing(2,np.ones((5,1)))
+        probability_from_alpha4=alphas[4]*self.prob_buy[3]*self.site_landing(3,np.ones((5,1)))
+        probability_from_alpha5=alphas[5]*self.prob_buy[4]*self.site_landing(4,np.ones((5,1)))
 
-        Probabilities_on_nodes=Probability_from_alpha1+Probability_from_alpha2+Probability_from_alpha3+Probability_from_alpha4+Probability_from_alpha5
-        Value_from_node1=Probabilities_on_nodes[0]*self.Expected_number_sold[0]*self.Margins[0];
-        Value_from_node2=Probabilities_on_nodes[1]*self.Expected_number_sold[1]*self.Margins[1];
-        Value_from_node3=Probabilities_on_nodes[2]*self.Expected_number_sold[2]*self.Margins[2];
-        Value_from_node4=Probabilities_on_nodes[3]*self.Expected_number_sold[3]*self.Margins[3];
-        Value_from_node5=Probabilities_on_nodes[4]*self.Expected_number_sold[4]*self.Margins[4];        
+        probabilities_on_nodes=probability_from_alpha1+probability_from_alpha2+probability_from_alpha3+probability_from_alpha4+probability_from_alpha5
+        value_from_node1=probabilities_on_nodes[0]*self.expected_number_sold[0]*self.margins[0]
+        value_from_node2=probabilities_on_nodes[1]*self.expected_number_sold[1]*self.margins[1]
+        value_from_node3=probabilities_on_nodes[2]*self.expected_number_sold[2]*self.margins[2]
+        value_from_node4=probabilities_on_nodes[3]*self.expected_number_sold[3]*self.margins[3]
+        value_from_node5=probabilities_on_nodes[4]*self.expected_number_sold[4]*self.margins[4]        
 
-        Total_Value=Value_from_node1+Value_from_node2+Value_from_node3+Value_from_node4+Value_from_node5;
+        total_value=value_from_node1+value_from_node2+value_from_node3+value_from_node4+value_from_node5
 
-        return Total_Value;
+        return total_value
 
     def simplified_round(self, product, n_sim = 0):
-        alphas = np.zeros((len(self.con_matrix)))
+        alphas = np.zeros((len(self.con_matrix)+1))
         alphas[product+1 ]= 1
-        return round(alphas)
+        return self.round(alphas)
 
     def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
         x1, y1 = min_budget, 0
@@ -62,34 +62,34 @@ class Environment():
 
 
     def site_landing(self,landing_product,activated_nodes):
-        ret=np.zeros(5);
+        ret=np.zeros(5)
         if(activated_nodes[landing_product] == 0):
             return 0        
-        ret[landing_product]=1;#return always 1 for the current node
+        ret[landing_product]=1#return always 1 for the current node
         #exctract landing product column
-        Connectedness=self.Con_matrix[landing_product];#extract landing_product row
-        Connectedness=(activated_nodes.T*Connectedness)[0];#available connections
-        if np.sum(Connectedness)==0:
-            return ret;#only current node returna
-        activated_nodes[landing_product]=0;#deactivate current node for the following steps
-        #sec_prod=np.nonzero(Connectedness)[0];#secondary products
-        sec_prod = np.flip(np.argsort(Connectedness)[-2:])
+        connectedness=self.con_matrix[landing_product]#extract landing_product row
+        connectedness=(activated_nodes.T*connectedness)[0]#available connections
+        if np.sum(connectedness)==0:
+            return ret#only current node returna
+        activated_nodes[landing_product]=0#deactivate current node for the following steps
+        #sec_prod=np.nonzero(Connectedness)[0]#secondary products
+        sec_prod = np.flip(np.argsort(connectedness)[-2:])
         if sec_prod.size==2:
             #values from getting ONLY to first or second secondary
-            First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*(1-Connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-            Second_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*(1-Connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
+            first_ret=self.prob_buy[sec_prod[0]]*connectedness[sec_prod[0]]*(1-connectedness[sec_prod[1]])*self.site_landing(sec_prod[0],deepcopy(activated_nodes))
+            second_ret=self.prob_buy[sec_prod[1]]*connectedness[sec_prod[1]]*(1-connectedness[sec_prod[0]])*self.site_landing(sec_prod[1],deepcopy(activated_nodes))
             #case in which both are visited
             #both visited, first product
-            activated_nodes[sec_prod[1]]=0;
-            Both1_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-            activated_nodes[sec_prod[1]]=1;
-            activated_nodes[sec_prod[0]]=0;
-            Both2_ret=self.Prob_Buy[sec_prod[1]]*Connectedness[sec_prod[1]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],deepcopy(activated_nodes));
+            activated_nodes[sec_prod[1]]=0
+            both1_ret=self.prob_buy[sec_prod[0]]*connectedness[sec_prod[1]]*connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes))
+            activated_nodes[sec_prod[1]]=1
+            activated_nodes[sec_prod[0]]=0
+            both2_ret=self.prob_buy[sec_prod[1]]*connectedness[sec_prod[1]]*connectedness[sec_prod[0]]*self.site_landing(sec_prod[1],deepcopy(activated_nodes))
             #can be executed recoursively
-            return ret+First_ret+Second_ret+Both1_ret+Both2_ret;
+            return ret+first_ret+second_ret+both1_ret+both2_ret
             
-        First_ret=self.Prob_Buy[sec_prod[0]]*Connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes));
-        return ret+First_ret;
+        first_ret=self.prob_buy[sec_prod[0]]*connectedness[sec_prod[0]]*self.site_landing(sec_prod[0],deepcopy(activated_nodes))
+        return ret+first_ret
 
         
 
