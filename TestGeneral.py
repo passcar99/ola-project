@@ -38,7 +38,7 @@ for i in range(n_super_arms):
 print("------------------------------------------")
 Cumulative=np.zeros(n_super_arms);
 LastCum=np.zeros(n_super_arms);
-Nn=300;
+Nn=365;
 Regret=np.zeros(Nn+1);
 # TS 
 #learner=TS_Learner5D(n_arms)

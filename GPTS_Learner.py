@@ -14,7 +14,7 @@ class GPTS_Learner(Learner5D):
         self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;#var of the [i,j,k,m,l] multi-arm
         self.pulled_arms = []
         alpha = 1 # 10 in prof code
-        kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
+        kernel = C(1.0, (1e-3, 1e3))*RBF(2, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10)
         #[N1,N2,N3,N4,N5]=np.meshgrid(arms[0][:],arms[1][:],arms[2][:],arms[3][:],arms[4][:])
         #N1=N1.flatten()
