@@ -8,17 +8,22 @@ class GPTS_Learner(Learner5D):
 
     def __init__(self, n_arms, arms):
         super().__init__(n_arms)
-        self.arms = arms
- #matrix for each product the arms arms[i][j] i product, j arm's index
-        self.means = np.zeros((n_arms,n_arms,n_arms,n_arms,n_arms));
-#mean of the [i,j,k,m,l] multi-arm
-        self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;
-
-#var of the [i,j,k,m,l] multi-arm
+        self.arms = arms #matrix for each product the arms arms[i][j] i product, j arm's index
+ 
+        self.means = np.zeros((n_arms,n_arms,n_arms,n_arms,n_arms));#mean of the [i,j,k,m,l] multi-arm
+        self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;#var of the [i,j,k,m,l] multi-arm
         self.pulled_arms = []
         alpha = 1 # 10 in prof code
         kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10)
+        #[N1,N2,N3,N4,N5]=np.meshgrid(arms[0][:],arms[1][:],arms[2][:],arms[3][:],arms[4][:])
+        #N1=N1.flatten()
+        #N2=N2.flatten()
+        #N3=N3.flatten()
+        #N4=N4.flatten()
+        #N5=N5.flatten()
+        #self.lattice_samples_features=np.array([N1,N2,N3,N4,N5]).T #matrix Mij with i identifying a superarm and j a product of such arm
+        
 
     def update_observations(self, pulled_arm, reward):
         super().update_observations(pulled_arm, reward)
@@ -42,7 +47,12 @@ class GPTS_Learner(Learner5D):
                         for m in range(self.n_arms):
                             input_pred=np.array([[self.arms[0][i],self.arms[1][j],self.arms[2][k],self.arms[3][l],self.arms[4][m]]])
                             self.means[i,j,k,l,m], self.sigmas[i,j,k,l,m] = self.gp.predict(input_pred, return_std = True)
-        self.sigmas = np.maximum(self.sigmas, 1e-2)
+        
+        #means_array, sigmas_array = self.gp.predict(self.lattice_samples_features, return_std = True)
+        #sigmas_array=np.reshape(sigmas_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
+        #self.sigmas = np.maximum(sigmas_array, 1e-2)
+        #self.means=np.reshape(means_array,(len(self.arms[0]),len(self.arms[1]),len(self.arms[2]),len(self.arms[3]),len(self.arms[4])))
+        
 
     def update(self, pulled_arm, reward):
         self.t += 1
