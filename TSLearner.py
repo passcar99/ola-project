@@ -40,11 +40,12 @@ class GPTS_Learner(Learner):
 
     def update_model(self):
         for product in range(self.n_products):
-            x = np.atleast_2d(self.pulled_arms[product]).T
-            y = np.atleast_2d(self.rewards_per_product[product])
-            print(x, y)
+            x = np.atleast_2d(self.pulled_arms[product])
+            y = self.rewards_per_product[product]
             self.gps[product].fit(x, y)
-            self.means[product], self.sigmas[product] = self.gps[product].predict(np.atleast_2d(self.arms).T, return_std = True)
+            means, sigmas = self.gps[product].predict(self.arms.reshape(-1, 1), return_std = True)
+            print(means)
+            self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 
     def update(self, pulled_arm, reward):
@@ -82,7 +83,6 @@ if __name__ == '__main__':
 
     for _ in range(10):
         arm = learner.pull_arm()
-        print(arm)
         feedback = env.round(arm.flatten())
 
         learner.update(arm, feedback[0]['alphas'])
