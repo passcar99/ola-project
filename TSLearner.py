@@ -57,10 +57,29 @@ class GPTS_Learner(Learner):
         for p in range(self.n_products):
             expected_margins = np.sum(self.env.simplified_round(p, n_sim = 100))
         value_matrix = sampled_values * expected_margins
-        budget_allocations(value_matrix, self.arms, subtract_budget=True)
-        return np.argmax(sampled_values, axis=1)
+        return budget_allocations(value_matrix, self.arms, subtract_budget=True)
+        
 
 
 
 if __name__ == '__main__':
-    
+    connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],
+                                    [0.5, 0, 0.1, 0.3, 0.1],
+                                    [0.3, 0.2, 0, 0.1, 0.4],
+                                    [0.13, 0.17, 0.30, 0, 0.4],
+                                    [0.16, 0.34, 0.15, 0.25, 0],
+                                    ])
+    prob_buy = np.array([0.1, 0.2, 0.5, 0.9, 0.7])
+    avg_sold = [5,6,7,8,9]
+    margins = [10, 20, 30, 40, 50]
+    conpam_matrix = [{"alpha_params": [(0, 10, 2), (5, 10, 6),(5, 20, 10),(5, 50, 6),(5, 8, 6)], "features":[0, 0], "total_mass":64, "avg_number":100}, 
+                    ]
+    env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+    arms = np.array([20, 30, 40, 50, 60])
+    learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, 'fast')
+
+    for _ in range(10):
+        arm = learner.pull_arm()
+        feedback = env.round(arm)
+        #TODO
+
