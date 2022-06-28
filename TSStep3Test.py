@@ -15,15 +15,15 @@ if __name__ == '__main__':
                                     [0.16, 0.34, 0.15, 0.25, 0],
                                     ])
     prob_buy = np.array([0.5, 0.2, 0.5, 0.7, 0.7])
-    avg_sold = [3,2,3,1,2]
+    avg_sold = [6,10,5,5,3]
     margins = [30, 20, 30, 40, 50]
     conpam_matrix = [
-        {"alpha_params": [(0, 20, 10), (4, 20, 20),(4, 20, 10),(4, 15, 12),(4, 20, 15)], 
+        {"alpha_params": [(0, 10, 10), (4, 15, 20),(4, 20, 10),(4, 15, 12),(4, 15, 15)], 
         "features":[0, 0], "total_mass":64, "avg_number":100}, 
                     ]
-    arms = np.array([5, 10, 15, 20])
+    arms = np.array([0, 10, 20, 30, 40, 50, ])
     #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
-    bounds = np.array([[0, 100],[0, 100],[0, 100],[0, 100],[0, 100]])
+    bounds = np.array([[-1, 100],[-1, 100],[-1, 100],[-1, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
@@ -42,12 +42,11 @@ if __name__ == '__main__':
         value_matrix[p, :] = alpha_functions[p, :]* expected_margin *100 # n_users
         value_matrix[p, unfeasible_arms[p]] = -np.inf
     opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1]
-
     
     ts_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 150
+    T = 200
 
 
     for e in tqdm(range(n_experiments)):

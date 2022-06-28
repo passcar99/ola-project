@@ -20,6 +20,7 @@ class Learner():
         self.unfeasible_arms = []
         for p in range(self.n_products):
             self.unfeasible_arms.append(np.logical_or(self.arms <= self.bounds[p][0], self.arms >= self.bounds[p][1]))
+        self.avg_n_users = 0
 
 
 
@@ -29,6 +30,7 @@ class Learner():
             arm = np.where(self.arms==pulled_arms[product])[0][0]
             self.rewards_per_arm[product][arm].append(alphas[product+1]) # ignore alpha0
         self.collected_rewards.append(np.sum(reward['profit']))
+        self.avg_n_users = (self.avg_n_users*(self.t-1)+reward['n_users'])/self.t
 
     def update(self, pulled_arms, reward):
         self.t += 1

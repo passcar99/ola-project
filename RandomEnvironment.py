@@ -23,6 +23,7 @@ class RandomEnvironment():
         self.prob_buy=prob_buy
         self.avg_sold = avg_sold
         self.margins = np.array(margins)
+        self.n_prods = len(self.margins)
         
 
     def round(self, budgets):
@@ -30,9 +31,13 @@ class RandomEnvironment():
 
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
-            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            betas = user_class.get_alpha_from_budgets(budgets)
+            non_zero_prods = np.nonzero(betas)
+            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
+            alphas_tilde = np.zeros((self.n_prods+1))
+            alphas_tilde[non_zero_prods] = alphas
             category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas
+            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
 
         for n in category_realizations:
             cusum = np.zeros((5))
@@ -50,9 +55,13 @@ class RandomEnvironment():
         category_realizations = [{} for _ in range(len(self.user_classes))]
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
-            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            betas = user_class.get_alpha_from_budgets(budgets)
+            non_zero_prods = np.nonzero(betas)
+            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
+            alphas_tilde = np.zeros((self.n_prods+1))
+            alphas_tilde[non_zero_prods] = alphas
             category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas
+            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
 
         for user_category in category_realizations:
             cusum = np.zeros((5))
@@ -74,9 +83,13 @@ class RandomEnvironment():
         
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
-            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            betas = user_class.get_alpha_from_budgets(budgets)
+            non_zero_prods = np.nonzero(betas)
+            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
+            alphas_tilde = np.zeros((self.n_prods+1))
+            alphas_tilde[non_zero_prods] = alphas
             category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas
+            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
 
         for user_category in category_realizations:
             cusum = np.zeros((5))
@@ -96,11 +109,15 @@ class RandomEnvironment():
     def round_step_7(self, budgets):
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
-        for i, cat_idx in enumerate(self.user_classes):
-            n_users = np.random.poisson(cat_idx.avg_number)
-            alphas = stats.dirichlet.rvs(cat_idx.get_alpha_from_budgets(budgets), size=1)[0]
+        for i, user_class in enumerate(self.user_classes):
+            n_users = np.random.poisson(user_class.avg_number)
+            betas = user_class.get_alpha_from_budgets(budgets)
+            non_zero_prods = np.nonzero(betas)
+            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
+            alphas_tilde = np.zeros((self.n_prods+1))
+            alphas_tilde[non_zero_prods] = alphas
             category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas
+            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
 
         for cat_idx , user_category in enumerate(category_realizations):
             cusum = np.zeros((5))

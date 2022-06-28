@@ -48,6 +48,10 @@ class GPTS_Learner(Learner):
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
+            """ if self.t >= 10:
+                plt.plot(self.arms,means)
+                plt.fill_between(self.arms, means-sigmas, means+sigmas)
+                plt.show() """
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 
@@ -61,7 +65,7 @@ class GPTS_Learner(Learner):
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
             expected_margin = self.env.simplified_round(p, n_sim = 1000)
-            value_matrix[p, :] = sampled_values[p, :]* expected_margin
+            value_matrix[p, :] = sampled_values[p, :]* expected_margin * self.avg_n_users
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
         
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
@@ -82,8 +86,8 @@ if __name__ == '__main__':
     conpam_matrix = [{"alpha_params": [(0, 10, 2), (5, 10, 6),(5, 20, 10),(5, 50, 6),(5, 8, 6)], "features":[0, 0], "total_mass":64, "avg_number":100}, 
                     ]
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-    arms = np.array([20, 30, 40, 50, 60])
-    bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
+    arms = np.array([0, 5, 10, 15, 20, 25])
+    bounds = np.array([[-1, 100],[-1, 100],[-1, 100],[-1, 100],[-1, 100]])
     learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
 
     for _ in range(100):
