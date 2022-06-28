@@ -43,7 +43,7 @@ class RandomEnvironment():
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
-            n['profit'] = cusum.flatten()*self.margins.transpose()
+            n['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
         return category_realizations
 
     def round_step_4(self, budgets):
@@ -66,7 +66,7 @@ class RandomEnvironment():
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 items_sold[i, :] = bought_nodes
             user_category['items'] = items_sold
-            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
         return category_realizations
 
     def round_step_5(self, budgets):
@@ -89,7 +89,7 @@ class RandomEnvironment():
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 activation_history[i, :] = activated_nodes
-            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['activation_history'] = activation_history
         return category_realizations
 
@@ -114,7 +114,7 @@ class RandomEnvironment():
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 items_sold[i, :] = bought_nodes
             user_category['items'] = items_sold
-            user_category['profit'] = cusum.flatten()*self.margins.transpose()
+            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['features'] = self.user_classes[cat_idx].features
         return category_realizations
     
@@ -152,15 +152,12 @@ class RandomEnvironment():
 
 
     def simplified_round(self, product, n_sim):
-        for _ in n_sim:
-            cusum = np.zeros((5))
-            landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
-            if landing_product == 0: #competitor
-                continue
+        cusum = np.zeros(len(self.margins))
+        for _ in range(n_sim):
             activated_nodes = np.zeros((5), dtype=int)
             bought_nodes = np.zeros((5))
-            cusum += self.site_landing(product, activated_nodes , bought_nodes)
-        expected_margin = cusum.flatten()*self.margins.transpose()
+            cusum += self.site_landing(product, activated_nodes, bought_nodes)
+        expected_margin = cusum.flatten().dot(self.margins.transpose())/n_sim
         return expected_margin
 
 
@@ -192,9 +189,10 @@ if __name__=='__main__':
     """import matplotlib.pyplot as plt
     plt.plot(env.alpha_function(5, 100, 20)(np.linspace(-5, 200, 2000)))
     plt.show() """
-    con_matrix = [[2, 10, 15, 2, 22, 13]]
     env2 = Environment(con_matrix, connectivity_matrix, prob_buy, [10]+avg_sold, [10]+margins)
     probs = env.round_step_7([10, 20, 6,50,45])
     #probs2 = env2.round()
     print('Random environment:', probs, )#'Efficient environment: ', probs2, sep='\n')
+    print(env2.pull_arm([10, 20, 6,50,45]))
+
 

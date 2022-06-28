@@ -1,18 +1,19 @@
 import numpy as np
 from scipy import stats
-from scipy.interpolate import interp1d
 from copy import deepcopy
+from UserCategory import UserCategory
 
 class Environment():
-    #conpam_matrix with in  i-th column the i-th concentration parameter of the
-    #dirichlet distribution, in the j-th row the j-th seasonality period.
+    #conpam_matrix list of user classes.
     #Connectivity matrix of the graph(can change with seasoality?) P_ij denotes
     #the probability of clicking on j-th product when displayed on i_th page, given
     #that the secondary products are fixed the lambda is implicit.
     #Lambda decay from being the second secondary product.
     #Prob_Buy probability that i-th product is bought
     def __init__(self,conpam_matrix,con_matrix,prob_buy,expected_number_sold,margins):
-        self.conpam_matrix=conpam_matrix#will be get from the functions
+        self.user_classes = []
+        for user_class in conpam_matrix:
+            self.user_classes.append(UserCategory(**user_class))
         self.con_matrix=con_matrix
         self.lam=0.5#implicit in Con_matrix
         self.prob_buy=prob_buy
@@ -25,9 +26,14 @@ class Environment():
     #by the returns associated to that probability
     def pull_arm(self,budgets):
         #conpam_matrix will be actually be get from the functions, now for testing we will just add
-        budgets.insert(0,0)
-        alphas=stats.dirichlet.rvs(self.conpam_matrix[0]+budgets, size=1)[0]
-        return self.round(alphas)
+        cusum = 0
+
+        for i, user_class in enumerate(self.user_classes):
+            n_users = np.random.poisson(user_class.avg_number)
+            alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
+            cusum += self.round(alphas)*n_users
+             
+        return cusum
 
 
     def round(self,alphas):#the clayrvoiant algorithm will innput the mean alphas(because he know the functions)
@@ -46,7 +52,6 @@ class Environment():
         value_from_node5=probabilities_on_nodes[4]*self.expected_number_sold[4]*self.margins[4]        
 
         total_value=value_from_node1+value_from_node2+value_from_node3+value_from_node4+value_from_node5
-
         return total_value
 
     def simplified_round(self, product, n_sim = 0):
@@ -54,11 +59,12 @@ class Environment():
         alphas[product+1 ]= 1
         return self.round(alphas)
 
-    def alpha_function(self, min_budget, max_budget, alpha_bar): #assuming linear behaviour. TODO check
-        x1, y1 = min_budget, 0
-        x2, y2 = max_budget, alpha_bar
-        #return a function to be called as f(inputs) where inputs can be a number or an array
-        return interp1d([x1, x2], [y1, y2], kind='linear', bounds_error=False, fill_value=(y1, y2) )
+    def alpha_functions(self):
+        alpha_functions = []
+        for user_cat in self.user_classes:
+            alpha_functions.append(user_cat.alpha_functions)
+        return alpha_functions
+
 
 
     def site_landing(self,landing_product,activated_nodes):

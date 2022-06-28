@@ -1,14 +1,13 @@
-from random import sample
+from turtle import color
 from Learner import Learner
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from typing import List, Dict
-from tqdm import tqdm
-from scipy import stats
 from Algorithms import budget_allocations
 from Environment import Environment
 from RandomEnvironment import RandomEnvironment
+import matplotlib.pyplot as plt
 
 
 
@@ -22,9 +21,13 @@ class GPTS_Learner(Learner):
         self.rewards_per_product = [[] for _ in range(self.n_products)]
         self.gps = []
         for _ in range(self.n_products):
-            alpha = 1 # 10 in prof code
+            alpha = 0.1**(1/2) # 10 in prof code
             kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
-            self.gps.append(GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10))
+            self.gps.append(
+                GaussianProcessRegressor(
+                    kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
+                    ) # keep a reference to training data to avoid copying it every time
+                    ) 
         if environment_type == 'fast':
             self.env = Environment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
         else:
@@ -33,16 +36,18 @@ class GPTS_Learner(Learner):
 
     def update_observations(self, pulled_arms, reward):
         super().update_observations(pulled_arms, reward)
+        alphas = reward['alphas']
         for product in range(self.n_products):
             self.pulled_arms[product].append(pulled_arms[product])
-            self.rewards_per_product[product].append(reward[product+1])
+            self.rewards_per_product[product].append(alphas[product+1])
 
     def update_model(self):
         for product in range(self.n_products):
             x = np.atleast_2d(self.pulled_arms[product])
             y = self.rewards_per_product[product]
-            self.gps[product].fit(x, y)
-            means, sigmas = self.gps[product].predict(self.arms.reshape(-1, 1), return_std = True)
+            gp = self.gps[product]
+            gp.fit(x, y)
+            means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 
@@ -55,9 +60,10 @@ class GPTS_Learner(Learner):
         sampled_values = np.random.normal(self.means, self.sigmas)
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
-            expected_margin = self.env.simplified_round(p, n_sim = 100)
-            value_matrix[p, :] += sampled_values[p, :]* expected_margin
+            expected_margin = self.env.simplified_round(p, n_sim = 1000)
+            value_matrix[p, :] = sampled_values[p, :]* expected_margin
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
+        
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
         
 
@@ -80,10 +86,11 @@ if __name__ == '__main__':
     bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
     learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
 
-    for _ in range(10):
+    for _ in range(100):
         arm = learner.pull_arm()
+        print(arm)
         feedback = env.round(arm.flatten())
 
-        learner.update(arm, feedback[0]['alphas'])
+        learner.update(arm, feedback[0])
         #TODO
 
