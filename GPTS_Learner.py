@@ -4,11 +4,11 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
-class GPTS_Learner(Learner5D):
+class GPTS_Learner5D(Learner5D):
 
-    def __init__(self, n_arms, arms):
+    def __init__(self, n_arms, arms):#arms MUST BE NORMALIZED
         super().__init__(n_arms)
-        self.arms = arms #matrix for each product the arms arms[i][j] i product, j arm's index
+        self.arms = np.array([arms,arms,arms,arms,arms]) #matrix for each product the arms arms[i][j] i product, j arm's index
  
         self.means = np.zeros((n_arms,n_arms,n_arms,n_arms,n_arms));#mean of the [i,j,k,m,l] multi-arm
         self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;#var of the [i,j,k,m,l] multi-arm
@@ -56,7 +56,6 @@ class GPTS_Learner(Learner5D):
 
     def update(self, pulled_arm, reward):
         #THE REWARD MUST BE NORMALIZED!!
-        reward=reward/3
         self.t += 1
         self.update_observations(pulled_arm, reward)
         self.update_model()
