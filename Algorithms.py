@@ -37,7 +37,6 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
             new_solution.append(sol)
         solution = new_solution
     
-
     if subtract_budget:
         solution_value[n_products] -= np.array(budgets)
     best_comb = np.argmax(solution_value[n_products])

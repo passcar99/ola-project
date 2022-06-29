@@ -15,15 +15,15 @@ if __name__ == '__main__':
                                     [0.16, 0.34, 0.15, 0.25, 0],
                                     ])
     prob_buy = np.array([0.5, 0.2, 0.5, 0.7, 0.7])
-    avg_sold = [6,10,5,5,3]
+    avg_sold = [6,10,5,5,6]
     margins = [30, 20, 30, 40, 50]
     conpam_matrix = [
-        {"alpha_params": [(0, 10, 10), (4, 15, 20),(4, 20, 10),(4, 15, 12),(4, 15, 15)], 
-        "features":[0, 0], "total_mass":64, "avg_number":100}, 
+        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)], 
+        "features":[0, 0], "total_mass":80, "avg_number":100}, 
                     ]
-    arms = np.array([0, 10, 20, 30, 40, 50, ])
+    arms = np.array([0, 5, 10, 15, 20, 30])
     #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
-    bounds = np.array([[-1, 100],[-1, 100],[-1, 100],[-1, 100],[-1, 100]])
+    bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
@@ -35,37 +35,55 @@ if __name__ == '__main__':
 
     #clairvoyant
     value_matrix = np.zeros((n_products, n_arms))
-    alpha_functions = np.array([fun(arms) for fun in env.alpha_functions()[0]])
+    alpha_functions = np.array([ fun(arms) for fun in env.alpha_functions()[0]])
     alpha_functions = alpha_functions/alpha_functions.sum(axis=1).reshape(-1, 1)
+    expected_margin = np.zeros((n_products))
     for p in range(n_products):
-        expected_margin = env.simplified_round(p, n_sim = 1000)
-        value_matrix[p, :] = alpha_functions[p, :]* expected_margin *100 # n_users
+        expected_margin[p] = env.simplified_round(p, n_sim = 10000)
+        value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *100 # n_users
         value_matrix[p, unfeasible_arms[p]] = -np.inf
     opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1]
-    
+    print(budget_allocations(value_matrix, arms, subtract_budget=True))
+
     ts_rewards_per_experiment = []
+    clairvoyant_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 200
+    T = 300
 
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
-
+        clairvoyant_rewards = []
         for t in tqdm(range(0, T)):
             pulled_arm = ts_learner.pull_arm()
             reward = env.round(pulled_arm)
+            n_users  = reward[0]['n_users']
+            for p in range(n_products):
+                value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *n_users
+                value_matrix[p, unfeasible_arms[p]] = -np.inf
+            opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1]
+            clairvoyant_rewards.append(opt)
+            print(pulled_arm, reward)
             ts_learner.update(pulled_arm, reward[0])
 
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
+        clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
     print(budget_allocations(value_matrix, arms, subtract_budget=True)[0])
     plt.figure(0)
     plt.ylabel("Regret")
     plt.xlabel("t")
-    plt.plot(np.arange(0, T), np.cumsum(opt-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
-    #plt.plot(np.arange(0, T),np.mean( ts_rewards_per_experiment, axis = 0), 'r')
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
     plt.legend(["TS", "UCB"])
+    plt.show()
+
+    plt.figure(1)
+    plt.ylabel("Reward")
+    plt.xlabel("t")
+    plt.plot(np.arange(0, T), np.mean(clairvoyant_rewards_per_experiment, axis = 0), 'b')
+    plt.plot(np.arange(0, T), np.mean(ts_rewards_per_experiment, axis = 0), 'r')
+    plt.legend(["Clairvoyant", "TS"])
     plt.show()

@@ -20,8 +20,8 @@ class RandomEnvironment():
             self.user_classes.append(UserCategory(**user_class))
         self.con_matrix=con_matrix
         self.lam=0.5;#implicit in Con_matrix
-        self.prob_buy=prob_buy
-        self.avg_sold = avg_sold
+        self.prob_buy=np.array(prob_buy)
+        self.avg_sold = np.array(avg_sold)
         self.margins = np.array(margins)
         self.n_prods = len(self.margins)
         
