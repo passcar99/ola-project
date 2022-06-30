@@ -27,7 +27,7 @@ class GPTS_Learner(Learner):
                 GaussianProcessRegressor(
                     kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
                     ) # keep a reference to training data to avoid copying it every time
-                    ) 
+                ) 
         if environment_type == 'fast':
             self.env = Environment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
         else:
@@ -49,9 +49,9 @@ class GPTS_Learner(Learner):
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
             """ if self.t >= 10:
-                plt.plot(self.arms,means)
-                plt.fill_between(self.arms, means-sigmas, means+sigmas)
-                plt.show() """
+                    plt.plot(self.arms,means)
+                    plt.fill_between(self.arms, means-sigmas, means+sigmas)
+                    plt.show() """
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 

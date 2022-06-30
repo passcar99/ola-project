@@ -1,10 +1,18 @@
 import numpy as np
 from copy import deepcopy
 """ 
-value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
+:param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
 -inf = -np.inf
+
+:return :
 """
 def budget_allocations(value_matrix, budgets, subtract_budget=False):
+    """ 
+:param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
+-inf = -np.inf
+
+:return :
+"""
     n_products = value_matrix.shape[0]
     n_budgets = value_matrix.shape[1]
     solution_value = np.zeros(shape=(n_products+1, n_budgets)) #actually we need just the previous row (TODO make more efficient later)
