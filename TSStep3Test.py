@@ -1,5 +1,6 @@
 from RandomEnvironment import RandomEnvironment
 from TSLearner import GPTS_Learner
+from TSLearnerTopped5D import GPTS_Learner_TOP5D
 from Environment import Environment
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     print(budget_allocations(value_matrix, arms, subtract_budget=True))
 
     ts_rewards_per_experiment = []
+    tsTOP5D_rewards_per_experiment = []
     clairvoyant_rewards_per_experiment = []
     n_experiments = 1
 
@@ -55,10 +57,13 @@ if __name__ == '__main__':
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        tsTOP5D_learner = GPTS_Learner_TOP5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
         clairvoyant_rewards = []
         for t in tqdm(range(0, T)):
             pulled_arm = ts_learner.pull_arm()
+            pulled_arm_5D = tsTOP5D_learner.pull_arm()
             reward = env.round(pulled_arm)
+            reward_5D = env.round(pulled_arm_5D)
             n_users  = reward[0]['n_users']
             for p in range(n_products):
                 value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *n_users
@@ -67,9 +72,11 @@ if __name__ == '__main__':
             clairvoyant_rewards.append(opt)
             print(pulled_arm, reward)
             ts_learner.update(pulled_arm, reward[0])
+            tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
 
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
+        tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
     print(budget_allocations(value_matrix, arms, subtract_budget=True)[0])
@@ -77,7 +84,9 @@ if __name__ == '__main__':
     plt.ylabel("Regret")
     plt.xlabel("t")
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
-    plt.legend(["TS", "UCB"])
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( tsTOP5D_rewards_per_experiment, axis = 0)), 'b')
+
+    plt.legend(["TS", "TSTOP5D"])
     plt.show()
 
     plt.figure(1)

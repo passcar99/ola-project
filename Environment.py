@@ -29,12 +29,24 @@ class Environment():
         cusum = 0
 
         for i, user_class in enumerate(self.user_classes):
-            n_users = np.random.poisson(user_class.avg_number)
+            n_users = user_class.avg_number
             alphas = stats.dirichlet.rvs(user_class.get_alpha_from_budgets(budgets), size=1)[0]
             cusum += self.round(alphas)*n_users
              
         return cusum
 
+    def pull_arm_excpected_value(self,budgets):
+        #conpam_matrix will be actually be get from the functions, now for testing we will just add
+        cusum = 0
+
+        for i, user_class in enumerate(self.user_classes):
+            n_users = user_class.avg_number
+            DirPar=user_class.get_alpha_from_budgets(budgets)
+            ParSum=np.sum(DirPar)
+            alpha_mean = [i/ParSum for i in DirPar]
+            cusum += self.round(alpha_mean)*n_users
+             
+        return cusum
 
     def round(self,alphas):#the clayrvoiant algorithm will innput the mean alphas(because he know the functions)
         
