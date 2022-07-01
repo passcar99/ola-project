@@ -15,8 +15,8 @@ class GPTS_Learner5D(Learner5D):
         self.pulled_arms = [[]]#the zeroth position occupied by the optimum found by the algorithm
         self.collected_rewards=np.append(self.collected_rewards,0)#the zeroth position occupied by the optimum found by the algorithm
         alpha = 1 # 10 in prof code
-        kernel = C(1.0, (1e-3, 1e3))*RBF(2, (1e-3, 1e3))
-        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10)
+        kernel = C(1.0, constant_value_bounds="fixed")*RBF(0.25, length_scale_bounds="fixed")
+        self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, n_restarts_optimizer=10)
         
         
 
@@ -35,7 +35,7 @@ class GPTS_Learner5D(Learner5D):
         self.pulled_arms[0]=optimal_arm
         self.collected_rewards[0]=optimal_reward
         x = self.pulled_arms
-        y = self.collected_rewards*2/optimal_reward#the 2 is a value which distance the neighboor of the optimal to the other superarms
+        y = self.collected_rewards*6/optimal_reward#the 2 is a value which distance the neighboor of the optimal to the other superarms
         self.gp.fit(x, y.reshape(-1,1))
         #Brute force with double cycle to generate matrix, there is definetly a better way
         for i in range(self.n_arms):

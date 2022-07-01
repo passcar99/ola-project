@@ -101,7 +101,12 @@ class GPTS_Learner_TOP5D(Learner):
         arms=list(self.arms)
         optimal_arm_idx=[arms.index(optimal_arm[0]),arms.index(optimal_arm[1]),arms.index(optimal_arm[2]),arms.index(optimal_arm[3]),arms.index(optimal_arm[4])]
         pull_arm_idx=self.GP5.pull_arm(optimal_arm_idx,optimal_reward,self.constraint_mask)
-        return np.array([ [arms[pull_arm_idx[0]]],[arms[pull_arm_idx[1]]],[arms[pull_arm_idx[2]]],[arms[pull_arm_idx[3]]],[arms[pull_arm_idx[4]]]])
+        #return np.array([ [arms[pull_arm_idx[0]]],[arms[pull_arm_idx[1]]],[arms[pull_arm_idx[2]]],[arms[pull_arm_idx[3]]],[arms[pull_arm_idx[4]]]])
+        ret=np.array([ [arms[pull_arm_idx[0]]],[arms[pull_arm_idx[1]]],[arms[pull_arm_idx[2]]],[arms[pull_arm_idx[3]]],[arms[pull_arm_idx[4]]]])
+        print('*******************')
+        print(ret==optimal_arm)
+        print('*******************')
+        return ret
         
 
 
