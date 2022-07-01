@@ -7,14 +7,22 @@ from UserCategory import UserCategory
 from typing import List, Dict
 
 class RandomEnvironment():
-    #conpam_matrix with in  i-th column the i-th concentration parameter of the
-    #dirichlet distribution, in the j-th row the j-th seasonality period.
-    #Connectivity matrix of the graph(can change with seasoality?) P_ij denotes
-    #the probability of clicking on j-th product when displayed on i_th page, given
-    #that the secondary products are fixed the lambda is implicit.
-    #Lambda decay from being the second secondary product.
-    #Prob_Buy probability that i-th product is bought
+    """ 
+    Environment for simulating the behaviour of the different user classes at each round.
+    
+    """
     def __init__(self,conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins):
+        """ 
+        :param arms: list of arms (budgets).
+        :param conpam_matrix: a list describing each user class in terms of alpha function parameters, features, 
+        average number of users, total mass of the Dirichlet parameters like [{"alpha_params": [(0, 10, 2), ...], "features":[0, 0], "total_mass":64, "avg_number":100},...]
+        :param con_matrix: connectivity matrix of the graph.
+        :param prob_buy: probability that an item is bought when displayed as primary.
+        :param avg_sold: average quantity of items bought for each product when displayed as primary.
+        :param margins: margin (profit) for each arm.
+        :param bounds: lower and upper bounds for each product (n_products*2 matrix).
+        :param environment_type: type of environment to use to estimate the expected margin.
+        """
         self.user_classes = []
         for user_class in conpam_matrix:
             self.user_classes.append(UserCategory(**user_class))
@@ -28,6 +36,12 @@ class RandomEnvironment():
         
 
     def round(self, budgets):
+        """ 
+        Function returning the feedback from a round in the basic case.
+        :param budgets: superarm (list of budgets for each product).
+        :return: list of dictionaries. Each element of the list contains the number of users,
+         the alphas realization and the profit for the corresponding user category.
+        """
         category_realizations = [{} for _ in range(len(self.user_classes))]
 
         for i, user_class in enumerate(self.user_classes):
@@ -54,6 +68,12 @@ class RandomEnvironment():
         return category_realizations
 
     def round_step_4(self, budgets):
+        """ 
+        Function returning the feedback from a round in the step_4 case.
+        :param budgets: superarm (list of budgets for each product).
+        :return: list of dictionaries. Each element of the list contains the number of users,
+         the alphas realization, the number of items sold to each user and the profit for the corresponding user category.
+        """
         category_realizations = [{} for _ in range(len(self.user_classes))]
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
@@ -82,6 +102,13 @@ class RandomEnvironment():
         return category_realizations
 
     def round_step_5(self, budgets):
+        """ 
+        Function returning the feedback from a round in the step_5 case.
+        :param budgets: superarm (list of budgets for each product).
+        :return: list of dictionaries. Each element of the list contains the number of users,
+         the alphas realization, the number of items sold to each user, the history of activated nodes for each visit
+          and the profit for the corresponding user category.
+        """
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
         for i, user_class in enumerate(self.user_classes):
@@ -111,6 +138,12 @@ class RandomEnvironment():
         return category_realizations
 
     def round_step_7(self, budgets):
+        """ 
+        Function returning the feedback from a round in the step_7 case.
+        :param budgets: superarm (list of budgets for each product).
+        :return: list of dictionaries. Each element of the list contains the number of users,
+         the alphas realization, the number of items sold to each user, the feature values and the profit for the corresponding user category.
+        """
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
         for i, user_class in enumerate(self.user_classes):
@@ -149,7 +182,13 @@ class RandomEnvironment():
             alpha_functions.append(user_cat.alpha_functions)
         return alpha_functions
 
-    def site_landing(self,landing_product,activated_nodes, bought_nodes):#this case is with only ONE quantity bought and all the item have same price
+    def site_landing(self,landing_product,activated_nodes, bought_nodes):
+        """ 
+        Method inplementing the visit of the website buy a user.
+        :param landing_product: current product displayed as primary.
+        :param activated_nodes: array of already visited nodes. 0 if not visited, otherwise their level in the recursion.
+        :param bought_nodes: number of items bought for each product during the current visit.
+        """
         rec_level = self.recursion
         activated_nodes[landing_product] = rec_level
         buy = np.random.binomial(1, self.prob_buy[landing_product])
@@ -175,11 +214,15 @@ class RandomEnvironment():
             self.recursion+=1
             self.site_landing(second_sec, activated_nodes, bought_nodes)
             self.recursion = rec_level
-        print(activated_nodes)
         return bought_nodes
 
 
     def simplified_round(self, product, n_sim):
+        """ 
+        Function for computing the expected margin of a product. 
+        :param product: product whose margin must be computed.
+        :param n_sim: number of Monte Carlo simulations.
+        """
         cusum = np.zeros(len(self.margins))
         for _ in range(n_sim):
             activated_nodes = np.zeros((5), dtype=int)

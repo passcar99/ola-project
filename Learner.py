@@ -5,6 +5,16 @@ from typing import List, Dict
 class Learner():
 
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds):
+        """ 
+        :param arms: list of arms (budgets).
+        :param conpam_matrix: data about the environment (see the environment classes).
+        :param con_matrix: connectivity matrix of the graph.
+        :param prob_buy: probability that an item is bought when displayed as primary.
+        :param avg_sold: average quantity of items bought for each product when displayed as primary.
+        :param margins: margin (profit) for each arm.
+        :param bounds: lower and upper bounds for each product (n_products*2 matrix).
+        :param environment_type: type of environment to use to estimate the expected margin.
+        """
         self.arms = arms
         self.n_products = len(con_matrix)
         self.n_arms = len(arms)
