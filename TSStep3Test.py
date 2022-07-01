@@ -51,6 +51,7 @@ if __name__ == '__main__':
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
     tsTOP5D_rewards_per_experiment = []
+
     clairvoyant_ts_rewards_per_experiment = []
     clairvoyant_ts5d_rewards_per_experiment = []
     clairvoyant_ucb_rewards_per_experiment = []
@@ -79,8 +80,7 @@ if __name__ == '__main__':
             reward_5D = env.round(pulled_arm_5D)
             reward_ucb = env.round(pulled_arm_ucb)
 
-            #print(pulled_arm_ucb, reward_ucb)
-
+            print(pulled_arm_ucb, reward_ucb)
             """ for p in range(n_products):
                 value_matrix[p, :] = alpha_functions[p, :] * expected_margin[p] * reward_ts[0]['n_users']
                 value_matrix[p, unfeasible_arms[p]] = -np.inf

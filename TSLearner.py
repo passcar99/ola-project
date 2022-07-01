@@ -1,4 +1,3 @@
-from turtle import color
 from Learner import Learner
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -12,8 +11,23 @@ import matplotlib.pyplot as plt
 
 
 class GPTS_Learner(Learner):
-
+    """ 
+    Gaussian Process Thompson Sampling bandit. It estimated the click rate(?) of each product independently.
+    At every round it computes the alphas and the expected margins and fills the DP table. Then selects one of the 
+    feasible superarm.
+    
+    """
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast'):
+        """ 
+        :param arms: list of arms (budgets).
+        :param conpam_matrix: data about the environment (see the environment classes).
+        :param con_matrix: connectivity matrix of the graph.
+        :param prob_buy: probability that an item is bought when displayed as primary.
+        :param avg_sold: average quantity of items bought for each product when displayed as primary.
+        :param margins: margin (profit) for each arm.
+        :param bounds: lower and upper bounds for each product (n_products*2 matrix).
+        :param environment_type: type of environment to use to estimate the expected margin.
+        """
         super().__init__(arms,conpam_matrix,con_matrix, prob_buy, avg_sold, margins, bounds)
         self.means = np.zeros((self.n_products, self.n_arms))
         self.sigmas = np.ones((self.n_products, self.n_arms))*10
@@ -42,6 +56,9 @@ class GPTS_Learner(Learner):
             self.rewards_per_product[product].append(alphas[product+1])
 
     def update_model(self):
+        """ 
+        Update the Gaussian Processes for every product to incorporate the new data.
+        """
         for product in range(self.n_products):
             x = np.atleast_2d(self.pulled_arms[product])
             y = self.rewards_per_product[product]
@@ -61,6 +78,10 @@ class GPTS_Learner(Learner):
         self.update_model()
 
     def pull_arm(self):
+        """ 
+        Sample the values of alphas and fill the DP table with alpha*margin*avg_n_users. Then run the bidding algorithm
+        and select the optimal superarm.
+        """
         sampled_values = np.random.normal(self.means, self.sigmas)
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):

@@ -3,10 +3,6 @@ import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from typing import List, Dict
-from tqdm import tqdm
-from scipy import stats
-from audioop import avg
-from random import sample
 from Algorithms import budget_allocations
 from Environment import Environment
 from RandomEnvironment import RandomEnvironment

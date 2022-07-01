@@ -1,15 +1,14 @@
 import numpy as np
-from copy import deepcopy
-""" 
-:param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
--inf = -np.inf
 
-:return :
-"""
+
 def budget_allocations(value_matrix, budgets, subtract_budget=False):
     """ 
+    Dynamic programming algorithm for determining the optimal allocation of budgets to the different subcampaigns.
+    It exploits a tabular representation of the solution.
 :param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
 -inf = -np.inf
+:param budgets: list of budgets,
+:param subtract_budgets: whether to subtract the budget from the last row and consider also the advertising costs or not.
 
 :return :
 """
