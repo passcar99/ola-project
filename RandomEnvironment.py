@@ -24,6 +24,7 @@ class RandomEnvironment():
         self.avg_sold = np.array(avg_sold)
         self.margins = np.array(margins)
         self.n_prods = len(self.margins)
+        self.recursion = 0
         
 
     def round(self, budgets):
@@ -43,6 +44,7 @@ class RandomEnvironment():
             cusum = np.zeros((5))
             for _ in tqdm(range(n['n_users'])):
                 landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
+                self.recursion = 1
                 if landing_product == 0: #competitor
                     continue
                 activated_nodes = np.zeros((5), dtype=int)
@@ -70,6 +72,7 @@ class RandomEnvironment():
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
+                self.recursion = 1
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
@@ -98,6 +101,7 @@ class RandomEnvironment():
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
+                self.recursion = 1
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
@@ -126,6 +130,7 @@ class RandomEnvironment():
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
+                self.recursion = 1
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
@@ -145,7 +150,8 @@ class RandomEnvironment():
         return alpha_functions
 
     def site_landing(self,landing_product,activated_nodes, bought_nodes):#this case is with only ONE quantity bought and all the item have same price
-        activated_nodes[landing_product] = 1
+        rec_level = self.recursion
+        activated_nodes[landing_product] = rec_level
         buy = np.random.binomial(1, self.prob_buy[landing_product])
         if buy == 0:
             return bought_nodes
@@ -159,12 +165,17 @@ class RandomEnvironment():
             return bought_nodes
         first_sec = secondary_products[-1]
         second_sec = secondary_products[-2]
-        move = np.random.binomial(1, (1-activated_nodes[first_sec])*sec_prod_prob[first_sec]) # if 0 returns always 0
+        move = np.random.binomial(1, (1-(activated_nodes[first_sec]!=0))*sec_prod_prob[first_sec]) # if 0 returns always 0
         if move:
+            self.recursion+=1
             self.site_landing(first_sec, activated_nodes, bought_nodes)
-        move = np.random.binomial(1, (1-activated_nodes[second_sec])*sec_prod_prob[second_sec]) # if 0 returns always 0
+            self.recursion = rec_level
+        move = np.random.binomial(1, (1-(activated_nodes[second_sec] !=0))*sec_prod_prob[second_sec]) # if 0 returns always 0
         if move:
+            self.recursion+=1
             self.site_landing(second_sec, activated_nodes, bought_nodes)
+            self.recursion = rec_level
+        print(activated_nodes)
         return bought_nodes
 
 
@@ -173,6 +184,7 @@ class RandomEnvironment():
         for _ in range(n_sim):
             activated_nodes = np.zeros((5), dtype=int)
             bought_nodes = np.zeros((5))
+            self.recursion = 1
             cusum += self.site_landing(product, activated_nodes, bought_nodes)
         expected_margin = cusum.flatten().dot(self.margins.transpose())/n_sim
         return expected_margin

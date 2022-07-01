@@ -32,9 +32,10 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
                 if b_j+budgets[i-j] <= b_i: # accomodate for when the budgets do not sum to the current one TODO check
                     values.append(solution_value[product, j]+value_matrix[product, i-j]) #solution values starts from product 0
                     temp_sol.append(solution[j].copy())
-                    temp_sol[-1][product] = budgets[i-j]
+                    temp_sol[-1][product] = b_i-b_j
                 #else:
                     #values.append(solution_value[product-1, j]+value_matrix[product, i-j]) #if previous one is not a feasible solution according to budget
+            
             best_comb = np.argmax(values) # TODO break ties
             solution_value[product+1, i] = values[best_comb]
 
@@ -44,7 +45,6 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
             sol = temp_sol[best_comb]
             new_solution.append(sol)
         solution = new_solution
-    
     if subtract_budget:
         solution_value[n_products] -= np.array(budgets)
     best_comb = np.argmax(solution_value[n_products])

@@ -48,7 +48,7 @@ class GPTS_Learner(Learner):
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
-            """ if self.t >= 10:
+            """ if self.t >= 49:
                     plt.plot(self.arms,means)
                     plt.fill_between(self.arms, means-sigmas, means+sigmas)
                     plt.show() """

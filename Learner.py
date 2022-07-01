@@ -5,7 +5,7 @@ from typing import List, Dict
 class Learner():
 
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds):
-        self.arms: List = arms
+        self.arms = arms
         self.n_products = len(con_matrix)
         self.n_arms = len(arms)
         self.t = 0
@@ -30,7 +30,8 @@ class Learner():
             arm = np.where(self.arms==pulled_arms[product])[0][0]
             self.rewards_per_arm[product][arm].append(alphas[product+1]) # ignore alpha0
         self.collected_rewards.append(np.sum(reward['profit']))
-        self.avg_n_users = (self.avg_n_users*(self.t-1)+reward['n_users'])/self.t
+        """ self.avg_n_users = (self.avg_n_users*(self.t-1)+reward['n_users'])/self.t
+        print(self.avg_n_users) """
 
     def update(self, pulled_arms, reward):
         self.t += 1
