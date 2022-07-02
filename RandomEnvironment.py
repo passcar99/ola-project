@@ -9,7 +9,7 @@ from typing import List, Dict
 class RandomEnvironment():
     """ 
     Environment for simulating the behaviour of the different user classes at each round.
-    
+
     """
     def __init__(self,conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins):
         """ 
@@ -33,6 +33,7 @@ class RandomEnvironment():
         self.margins = np.array(margins)
         self.n_prods = len(self.margins)
         self.recursion = 0
+        self.t = 0
         
 
     def round(self, budgets):
@@ -42,6 +43,7 @@ class RandomEnvironment():
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization and the profit for the corresponding user category.
         """
+        self.t += 1
         category_realizations = [{} for _ in range(len(self.user_classes))]
 
         for i, user_class in enumerate(self.user_classes):
@@ -77,7 +79,7 @@ class RandomEnvironment():
         category_realizations = [{} for _ in range(len(self.user_classes))]
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
-            betas = user_class.get_alpha_from_budgets(budgets)
+            betas = user_class.get_alpha_from_budgets(budgets, self.t)
             non_zero_prods = np.nonzero(betas)
             alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
             alphas_tilde = np.zeros((self.n_prods+1))
@@ -99,6 +101,7 @@ class RandomEnvironment():
                 items_sold[i, :] = bought_nodes
             user_category['items'] = items_sold
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
+        self.t += 1
         return category_realizations
 
     def round_step_5(self, budgets):
@@ -135,6 +138,7 @@ class RandomEnvironment():
                 activation_history[i, :] = activated_nodes
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['activation_history'] = activation_history
+        self.t += 1
         return category_realizations
 
     def round_step_7(self, budgets):
@@ -144,6 +148,7 @@ class RandomEnvironment():
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization, the number of items sold to each user, the feature values and the profit for the corresponding user category.
         """
+        self.t += 1
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
         for i, user_class in enumerate(self.user_classes):
@@ -171,6 +176,7 @@ class RandomEnvironment():
             user_category['items'] = items_sold
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['features'] = self.user_classes[cat_idx].features
+        self.t += 1
         return category_realizations
     
 
