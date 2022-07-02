@@ -43,8 +43,9 @@ class GPTS_Learner4(GPTS_Learner):
 
         items_sold[items_sold==0] = np.nan # do not consider 0s when taking the mean (assume at least one bought)
         today_avg_sold = np.nanmean(items_sold, axis=0)
+        mask = np.logical_not(np.isnan(today_avg_sold))
         #running average to be more efficient. Only at the first iteration tot_visits==0, consequently avg_sold is ignored
-        self.avg_sold[today_avg_sold!=np.nan] = (self.avg_sold * self.tot_visits + today_avg_sold* today_visits)/(self.tot_visits + today_visits)
+        self.avg_sold[mask] = (self.avg_sold[mask] * self.tot_visits + today_avg_sold[mask]* today_visits)/(self.tot_visits + today_visits)
         self.tot_visits += today_visits
         self.env.avg_sold = self.avg_sold
 
