@@ -17,7 +17,7 @@ class GPTS_Learner(Learner):
     feasible superarm.
     
     """
-    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast'):
+    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast', sliding_window=1000000):
         """ 
         :param arms: list of arms (budgets).
         :param conpam_matrix: data about the environment (see the environment classes).
@@ -33,6 +33,7 @@ class GPTS_Learner(Learner):
         self.sigmas = np.ones((self.n_products, self.n_arms))*10
         self.pulled_arms = [[] for _ in range(self.n_products)]
         self.rewards_per_product = [[] for _ in range(self.n_products)]
+        self.sliding_window=sliding_window
         self.gps = []
         for _ in range(self.n_products):
             alpha = 10**(-5) # 10 in prof code
@@ -60,8 +61,8 @@ class GPTS_Learner(Learner):
         Update the Gaussian Processes for every product to incorporate the new data.
         """
         for product in range(self.n_products):
-            x = np.atleast_2d(self.pulled_arms[product])
-            y = self.rewards_per_product[product]
+            x = np.atleast_2d(self.pulled_arms[product][-self.sliding_window:])
+            y = self.rewards_per_product[product][-self.sliding_window:]
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)

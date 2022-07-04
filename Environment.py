@@ -20,7 +20,6 @@ class Environment():
         self.expected_number_sold=expected_number_sold
         self.margins=margins
 
-
     #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
     #the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
     #by the returns associated to that probability
@@ -35,13 +34,13 @@ class Environment():
              
         return cusum
 
-    def pull_arm_excpected_value(self,budgets):
+    def pull_arm_excpected_value(self,budgets,time):
         #conpam_matrix will be actually be get from the functions, now for testing we will just add
         cusum = 0
 
         for i, user_class in enumerate(self.user_classes):
             n_users = user_class.avg_number
-            DirPar=user_class.get_alpha_from_budgets(budgets)
+            DirPar=user_class.get_alpha_from_budgets(budgets,time)
             ParSum=np.sum(DirPar)
             alpha_mean = [i/ParSum for i in DirPar]
             cusum += self.round(alpha_mean)*n_users
