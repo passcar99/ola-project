@@ -4,12 +4,12 @@ from copy import deepcopy
 from UserCategory import UserCategory
 
 class Environment():
-    #conpam_matrix list of user classes.
-    #Connectivity matrix of the graph(can change with seasoality?) P_ij denotes
-    #the probability of clicking on j-th product when displayed on i_th page, given
-    #that the secondary products are fixed the lambda is implicit.
-    #Lambda decay from being the second secondary product.
-    #Prob_Buy probability that i-th product is bought
+    """ conpam_matrix list of user classes.
+    Connectivity matrix of the graph(can change with seasoality?) P_ij denotes
+    the probability of clicking on j-th product when displayed on i_th page, given
+    that the secondary products are fixed the lambda is implicit.
+    Lambda decay from being the second secondary product.
+    Prob_Buy probability that i-th product is bought """
     def __init__(self,conpam_matrix,con_matrix,prob_buy,expected_number_sold,margins):
         self.user_classes = []
         for user_class in conpam_matrix:
@@ -20,9 +20,9 @@ class Environment():
         self.expected_number_sold=expected_number_sold
         self.margins=margins
 
-    #Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
-    #the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
-    #by the returns associated to that probability
+    """ Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
+    the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
+    by the returns associated to that probability """
     def pull_arm(self,budgets):
         #conpam_matrix will be actually be get from the functions, now for testing we will just add
         cusum = 0
