@@ -9,6 +9,8 @@ import numpy as np
 from Algorithms import budget_allocations
 import sys
 import math
+import warnings
+warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],
@@ -20,10 +22,11 @@ if __name__ == '__main__':
     prob_buy = np.array([0.5, 0.2, 0.5, 0.7, 0.7])##Will it vary??
     avg_sold = [6,10,5,5,6]#Will it vary??
     margins = [30, 20, 30, 40, 50]
-    breakpoints = np.array([10])
+    breakpoints = np.array([50])
     conpam_matrix = [
         {"alpha_params": [
-                            [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)],
+                            [(0, 2, 20), (3, 10, 20),(0, 5, 20),(5, 17, 20),(2, 4, 20)],
+                            #[(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)],
                             [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)]
                             #[(0, 2, 20), (3, 10, 20),(0, 5, 20),(5, 17, 20),(2, 4, 20)]
                          ], 
@@ -87,7 +90,7 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 25
+    T = 100
 
     Regret_ts=np.zeros(T+1)
     Regret_5D=np.zeros(T+1)
@@ -99,7 +102,7 @@ if __name__ == '__main__':
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-        ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        ts_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
         tsTOP5D_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','detect')
         ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','slide',int(math.sqrt(T)))
         ts_learner.avg_n_users = 100
@@ -157,7 +160,7 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T+1), Regret_ts, 'r')
     plt.plot(np.arange(0, T+1), Regret_5D, 'b')
     plt.plot(np.arange(0, T+1), Regret_ucb, 'g')
-    plt.legend(["TS", "UCB_detecting", "UCB_sliding"])
+    plt.legend(["UCB", "UCB_detecting", "UCB_sliding"])
     plt.show()
 
     Ex_Reward_Clayr=np.zeros(T)
