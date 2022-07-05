@@ -1,6 +1,6 @@
-from TS_Learner5D import *
-from GPTS_Learner import *
-from Environment import *
+from learners.TS_Learner5D import *
+from learners.GPTS_Learner import *
+from environment.Environment import *
 import math
 import matplotlib.pyplot as plt
 np.random.seed(37)

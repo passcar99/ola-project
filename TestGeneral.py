@@ -1,7 +1,7 @@
-import numbers
-from TS_Learner5D import *
-from GPTS_Learner import *
-from Environment import *
+import numpy as np
+from learners.TS_Learner5D import *
+from learners.GPTS_Learner import *
+from environment.Environment import *
 import math
 import matplotlib.pyplot as plt
 import sys

@@ -1,4 +1,4 @@
-from Learner5D import *
+from .Learner5D import *
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C

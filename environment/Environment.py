@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
 from copy import deepcopy
-from UserCategory import UserCategory
+from .UserCategory import UserCategory
 
 class Environment():
     """ conpam_matrix list of user classes.

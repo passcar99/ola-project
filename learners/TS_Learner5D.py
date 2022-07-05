@@ -1,4 +1,4 @@
-from Learner5D import *
+from .Learner5D import *
 
 class TS_Learner5D(Learner5D):
 

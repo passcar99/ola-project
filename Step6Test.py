@@ -1,12 +1,12 @@
-from RandomEnvironment import RandomEnvironment
-from TSLearner import GPTS_Learner
-from TSLearnerTopped5D import GPTS_Learner_TOP5D
-from GPUCB_Learner import GPUCB_Learner
-from Environment import Environment
+from environment.RandomEnvironment import RandomEnvironment
+from learners.TSLearner import GPTS_Learner
+from learners.TSLearnerTopped5D import GPTS_Learner_TOP5D
+from learners.GPUCB_Learner import GPUCB_Learner
+from environment.Environment import Environment
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
-from Algorithms import budget_allocations
+from environment.Algorithms import budget_allocations
 import sys
 import math
 import warnings

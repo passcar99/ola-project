@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List, Dict
-from RandomEnvironment import RandomEnvironment
-from TSLearner import GPTS_Learner
+from environment.RandomEnvironment import RandomEnvironment
+from .TSLearner import GPTS_Learner
 
 
 

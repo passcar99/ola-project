@@ -2,8 +2,8 @@ import numpy as np
 from scipy import stats
 from scipy.interpolate import interp1d
 from tqdm import tqdm
-from Environment import Environment
-from UserCategory import UserCategory
+from .Environment import Environment
+from .UserCategory import UserCategory
 from typing import List, Dict
 
 class RandomEnvironment():
@@ -11,6 +11,7 @@ class RandomEnvironment():
     Environment for simulating the behaviour of the different user classes at each round.
 
     """
+
     def __init__(self,conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins):
         """ 
         :param arms: list of arms (budgets).
@@ -43,7 +44,6 @@ class RandomEnvironment():
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization and the profit for the corresponding user category.
         """
-        self.t += 1
         category_realizations = [{} for _ in range(len(self.user_classes))]
 
         for i, user_class in enumerate(self.user_classes):
@@ -58,7 +58,7 @@ class RandomEnvironment():
 
         for n in category_realizations:
             cusum = np.zeros((5))
-            for _ in tqdm(range(n['n_users'])):
+            for _ in tqdm(range(n['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
                 self.recursion = 1
                 if landing_product == 0: #competitor
@@ -67,6 +67,7 @@ class RandomEnvironment():
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
             n['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
+        self.t += 1
         return category_realizations
 
     def round_step_4(self, budgets):
@@ -90,7 +91,7 @@ class RandomEnvironment():
         for user_category in category_realizations:
             cusum = np.zeros((5))
             items_sold = np.zeros((user_category['n_users'], 5))
-            for i in tqdm(range(user_category['n_users'])):
+            for _ in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
@@ -127,7 +128,7 @@ class RandomEnvironment():
         for user_category in category_realizations:
             cusum = np.zeros((5))
             activation_history = np.zeros((user_category['n_users'], 5))
-            for i in tqdm(range(user_category['n_users'])):
+            for i in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
@@ -148,7 +149,6 @@ class RandomEnvironment():
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization, the number of items sold to each user, the feature values and the profit for the corresponding user category.
         """
-        self.t += 1
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
         for i, user_class in enumerate(self.user_classes):
@@ -164,7 +164,7 @@ class RandomEnvironment():
         for cat_idx , user_category in enumerate(category_realizations):
             cusum = np.zeros((5))
             items_sold = np.zeros((user_category['n_users'], 5))
-            for i in tqdm(range(user_category['n_users'])):
+            for i in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
                     continue
@@ -176,7 +176,7 @@ class RandomEnvironment():
             user_category['items'] = items_sold
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['features'] = self.user_classes[cat_idx].features
-        self.t += 1
+        self.t +=1
         return category_realizations
     
 

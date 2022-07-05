@@ -1,48 +1,57 @@
-from Learner import Learner
+from .Learner import Learner
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 from typing import List, Dict
-from Algorithms import budget_allocations
-from Environment import Environment
-from RandomEnvironment import RandomEnvironment
+from environment.Algorithms import budget_allocations
+from environment.Environment import Environment
+from environment.RandomEnvironment import RandomEnvironment
 import matplotlib.pyplot as plt
+from .GPTS_Learner import GPTS_Learner5D
 
 
 
-class GPTS_Learner(Learner):
-    """ 
-    Gaussian Process Thompson Sampling bandit. It estimated the click rate(?) of each product independently.
-    At every round it computes the alphas and the expected margins and fills the DP table. Then selects one of the 
-    feasible superarm.
-    
-    """
-    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast', sliding_window=1000000):
-        """ 
-        :param arms: list of arms (budgets).
-        :param conpam_matrix: data about the environment (see the environment classes).
-        :param con_matrix: connectivity matrix of the graph.
-        :param prob_buy: probability that an item is bought when displayed as primary.
-        :param avg_sold: average quantity of items bought for each product when displayed as primary.
-        :param margins: margin (profit) for each arm.
-        :param bounds: lower and upper bounds for each product (n_products*2 matrix).
-        :param environment_type: type of environment to use to estimate the expected margin.
-        """
+class GPTS_Learner_TOP5D(Learner):
+
+    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast'):
         super().__init__(arms,conpam_matrix,con_matrix, prob_buy, avg_sold, margins, bounds)
         self.means = np.zeros((self.n_products, self.n_arms))
         self.sigmas = np.ones((self.n_products, self.n_arms))*10
         self.pulled_arms = [[] for _ in range(self.n_products)]
         self.rewards_per_product = [[] for _ in range(self.n_products)]
-        self.sliding_window=sliding_window
         self.gps = []
+        #Feasibility mask computation--
+        self.constraint_mask=[]
+        for m in range(len(arms)):
+            for l in range(len(arms)):
+                for k in range(len(arms)):
+                    for j in range(len(arms)):
+                        for i in range(len(arms)):
+                            if (arms[i]+arms[j]+arms[k]+arms[l]+arms[m]>arms[-1] 
+                            or arms[i]<bounds[0][0] 
+                            or arms[i]>bounds[0][1]
+                            or arms[j]<bounds[1][0] 
+                            or arms[j]>bounds[1][1]
+                            or arms[k]<bounds[2][0] 
+                            or arms[k]>bounds[2][1]
+                            or arms[l]<bounds[3][0] 
+                            or arms[l]>bounds[3][1]
+                            or arms[m]<bounds[4][0] 
+                            or arms[m]>bounds[4][1]
+                            ):
+                                self.constraint_mask.append([i,j,k,l,m])
+        #------------------------------
+        #GP5--
+        self.GP5 = GPTS_Learner5D(len(arms),(arms-min(arms))/max(arms))
+        #-----
         for _ in range(self.n_products):
-            alpha = 10**(-5) # 10 in prof code
+            alpha = 0.1**(1/2) # 10 in prof code
             kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
             self.gps.append(
                 GaussianProcessRegressor(
-                    kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
+                    kernel=kernel, alpha=alpha**2, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
                     ) # keep a reference to training data to avoid copying it every time
-                ) 
+                    ) 
         if environment_type == 'fast':
             self.env = Environment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
         else:
@@ -57,19 +66,16 @@ class GPTS_Learner(Learner):
             self.rewards_per_product[product].append(alphas[product+1])
 
     def update_model(self):
-        """ 
-        Update the Gaussian Processes for every product to incorporate the new data.
-        """
         for product in range(self.n_products):
-            x = np.atleast_2d(self.pulled_arms[product][-self.sliding_window:])
-            y = self.rewards_per_product[product][-self.sliding_window:]
+            x = np.atleast_2d(self.pulled_arms[product])
+            y = self.rewards_per_product[product]
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
-            """ if self.t >= 49:
-                    plt.plot(self.arms,means)
-                    plt.fill_between(self.arms, means-sigmas, means+sigmas)
-                    plt.show() """
+            """ if self.t >= 10:
+                plt.plot(self.arms,means)
+                plt.fill_between(self.arms, means-sigmas, means+sigmas)
+                plt.show() """
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
 
@@ -77,12 +83,12 @@ class GPTS_Learner(Learner):
         self.t += 1
         self.update_observations(pulled_arm, reward)
         self.update_model()
+        profits = reward['profit']
+        arms=list(self.arms)
+        pulled_arm_idx=[arms.index(pulled_arm[0]),arms.index(pulled_arm[1]),arms.index(pulled_arm[2]),arms.index(pulled_arm[3]),arms.index(pulled_arm[4])]
+        self.GP5.update(pulled_arm_idx,profits)
 
     def pull_arm(self):
-        """ 
-        Sample the values of alphas and fill the DP table with alpha*margin*avg_n_users. Then run the bidding algorithm
-        and select the optimal superarm.
-        """
         sampled_values = np.random.normal(self.means, self.sigmas)
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
@@ -90,7 +96,16 @@ class GPTS_Learner(Learner):
             value_matrix[p, :] = sampled_values[p, :]* expected_margin * self.avg_n_users
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
         
-        return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
+        optimal_arm, optimal_reward=budget_allocations(value_matrix, self.arms, subtract_budget=True)
+        arms=list(self.arms)
+        optimal_arm_idx=[arms.index(optimal_arm[0]),arms.index(optimal_arm[1]),arms.index(optimal_arm[2]),arms.index(optimal_arm[3]),arms.index(optimal_arm[4])]
+        pull_arm_idx=self.GP5.pull_arm(optimal_arm_idx,optimal_reward,self.constraint_mask)
+        #return np.array([ [arms[pull_arm_idx[0]]],[arms[pull_arm_idx[1]]],[arms[pull_arm_idx[2]]],[arms[pull_arm_idx[3]]],[arms[pull_arm_idx[4]]]])
+        ret=np.array([ [arms[pull_arm_idx[0]]],[arms[pull_arm_idx[1]]],[arms[pull_arm_idx[2]]],[arms[pull_arm_idx[3]]],[arms[pull_arm_idx[4]]]])
+        print('*******************')
+        print(ret==optimal_arm)
+        print('*******************')
+        return ret
         
 
 

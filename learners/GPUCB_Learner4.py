@@ -1,7 +1,7 @@
-from Learner import*
+from .Learner import*
 import numpy as np
 from typing import List, Dict
-from GPUCB_Learner import GPUCB_Learner
+from .GPUCB_Learner import GPUCB_Learner
 
 class GPUCB_Learner4(GPUCB_Learner):
 
