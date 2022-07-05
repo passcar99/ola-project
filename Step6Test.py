@@ -85,69 +85,69 @@ if __name__ == '__main__':
     opt = Clayrvoiant.max(0)#opt row vector with opt for every phase
     print(opt)
 
-    ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
-    tsTOP5D_rewards_per_experiment = []
+    ucb_detecting_rewards_per_experiment = []
+    ucb_sliding_rewards_per_experiment = []
     n_experiments = 1
 
     T = 100
 
-    Regret_ts=np.zeros(T+1)
-    Regret_5D=np.zeros(T+1)
-    Regret_ucb=np.zeros(T+1)
+    regret_ucb=np.zeros(T+1)
+    regret_ucb_detecting=np.zeros(T+1)
+    regret_ucb_sliding=np.zeros(T+1)
 
-    Ex_Reward_ts=np.zeros(T)
-    Ex_Reward_5D=np.zeros(T)
-    Ex_Reward_ucb=np.zeros(T)
+    ex_reward_ucb=np.zeros(T)
+    ex_reward_ucb_detecting=np.zeros(T)
+    ex_reward_ucb_sliding=np.zeros(T)
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-        ts_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
-        tsTOP5D_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','detect')
-        ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','slide',int(math.sqrt(T)))
-        ts_learner.avg_n_users = 100
-        tsTOP5D_learner.avg_n_users = 100
+        ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        ucb_learner_detecting = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','detect')
+        ucb_learner_sliding = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','slide',int(2*math.sqrt(T)))
         ucb_learner.avg_n_users = 100
+        ucb_learner_detecting.avg_n_users = 100
+        ucb_learner_sliding.avg_n_users = 100
         for t in tqdm(range(0, T)):
-            pulled_arm_ts = ts_learner.pull_arm()
-            pulled_arm_5D = tsTOP5D_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
+            pulled_arm_detecting = ucb_learner_detecting.pull_arm()
+            pulled_arm_ucb_sliding = ucb_learner_sliding.pull_arm()
 
-            pulled_arm_ts_list=list(pulled_arm_ts)
-            pulled_arm_5D_list=list(pulled_arm_5D)
-            pulled_arm_ucb_list=list(pulled_arm_ucb)
+            pulled_arm_ucb=list(pulled_arm_ucb)
+            pulled_arm_detecting=list(pulled_arm_detecting)
+            pulled_arm_ucb_sliding=list(pulled_arm_ucb_sliding)
 
             arms_list=list(arms)
 
-            pulled_arm_ts_idx=[arms_list.index(pulled_arm_ts_list[0]),arms_list.index(pulled_arm_ts_list[1]),arms_list.index(pulled_arm_ts_list[2]),arms_list.index(pulled_arm_ts_list[3]),arms_list.index(pulled_arm_ts_list[4])]
-            pulled_arm_5D_idx=[arms_list.index(pulled_arm_5D_list[0]),arms_list.index(pulled_arm_5D_list[1]),arms_list.index(pulled_arm_5D_list[2]),arms_list.index(pulled_arm_5D_list[3]),arms_list.index(pulled_arm_5D_list[4])]
-            pulled_arm_ucb_idx=[arms_list.index(pulled_arm_ucb_list[0]),arms_list.index(pulled_arm_ucb_list[1]),arms_list.index(pulled_arm_ucb_list[2]),arms_list.index(pulled_arm_ucb_list[3]),arms_list.index(pulled_arm_ucb_list[4])]
+            pulled_arm_ucb_idx=[arms_list.index(pulled_arm_ucb[0]),arms_list.index(pulled_arm_ucb[1]),arms_list.index(pulled_arm_ucb[2]),arms_list.index(pulled_arm_ucb[3]),arms_list.index(pulled_arm_ucb[4])]
+            pulled_arm_ucb_det_idx=[arms_list.index(pulled_arm_detecting[0]),arms_list.index(pulled_arm_detecting[1]),arms_list.index(pulled_arm_detecting[2]),arms_list.index(pulled_arm_detecting[3]),arms_list.index(pulled_arm_detecting[4])]
+            pulled_arm_ucb_sliding_idx=[arms_list.index(pulled_arm_ucb_sliding[0]),arms_list.index(pulled_arm_ucb_sliding[1]),arms_list.index(pulled_arm_ucb_sliding[2]),arms_list.index(pulled_arm_ucb_sliding[3]),arms_list.index(pulled_arm_ucb_sliding[4])]
             
-            Number_ts=pulled_arm_ts_idx[0]+n_arms*pulled_arm_ts_idx[1]+pow(n_arms,2)*pulled_arm_ts_idx[2]+pow(n_arms,3)*pulled_arm_ts_idx[3]+pow(n_arms,4)*pulled_arm_ts_idx[4]
-            Number_5D=pulled_arm_5D_idx[0]+n_arms*pulled_arm_5D_idx[1]+pow(n_arms,2)*pulled_arm_5D_idx[2]+pow(n_arms,3)*pulled_arm_5D_idx[3]+pow(n_arms,4)*pulled_arm_5D_idx[4]
-            Number_ucb=pulled_arm_ucb_idx[0]+n_arms*pulled_arm_ucb_idx[1]+pow(n_arms,2)*pulled_arm_ucb_idx[2]+pow(n_arms,3)*pulled_arm_ucb_idx[3]+pow(n_arms,4)*pulled_arm_ucb_idx[4]
+            number_ucb=pulled_arm_ucb_idx[0]+n_arms*pulled_arm_ucb_idx[1]+pow(n_arms,2)*pulled_arm_ucb_idx[2]+pow(n_arms,3)*pulled_arm_ucb_idx[3]+pow(n_arms,4)*pulled_arm_ucb_idx[4]
+            number_detecting=pulled_arm_ucb_det_idx[0]+n_arms*pulled_arm_ucb_det_idx[1]+pow(n_arms,2)*pulled_arm_ucb_det_idx[2]+pow(n_arms,3)*pulled_arm_ucb_det_idx[3]+pow(n_arms,4)*pulled_arm_ucb_det_idx[4]
+            number_ucb_sliding=pulled_arm_ucb_sliding_idx[0]+n_arms*pulled_arm_ucb_sliding_idx[1]+pow(n_arms,2)*pulled_arm_ucb_sliding_idx[2]+pow(n_arms,3)*pulled_arm_ucb_sliding_idx[3]+pow(n_arms,4)*pulled_arm_ucb_sliding_idx[4]
 
             phase = np.sum(breakpoints <= t)
 
-            Regret_ts[t+1]=Regret_ts[t]+opt[phase]-Clayrvoiant[Number_ts][phase]
-            Regret_5D[t+1]=Regret_5D[t]+opt[phase]-Clayrvoiant[Number_5D][phase]
-            Regret_ucb[t+1]=Regret_ucb[t]+opt[phase]-Clayrvoiant[Number_ucb][phase]
+            regret_ucb[t+1]=regret_ucb[t]+opt[phase]-Clayrvoiant[number_ucb][phase]
+            regret_ucb_detecting[t+1]=regret_ucb_detecting[t]+opt[phase]-Clayrvoiant[number_detecting][phase]
+            regret_ucb_sliding[t+1]=regret_ucb_sliding[t]+opt[phase]-Clayrvoiant[number_ucb_sliding][phase]
 
-            Ex_Reward_ts[t]=Clayrvoiant[Number_ts][phase]
-            Ex_Reward_5D[t]=Clayrvoiant[Number_5D][phase]
-            Ex_Reward_ucb[t]=Clayrvoiant[Number_ucb][phase]
+            ex_reward_ucb[t]=Clayrvoiant[number_ucb][phase]
+            ex_reward_ucb_detecting[t]=Clayrvoiant[number_detecting][phase]
+            ex_reward_ucb_sliding[t]=Clayrvoiant[number_ucb_sliding][phase]
 
-            reward_ts = env.round(pulled_arm_ts)
-            reward_5D = env.round(pulled_arm_5D)
             reward_ucb = env.round(pulled_arm_ucb)
+            reward_ucb_detecting = env.round(pulled_arm_detecting)
+            reward_ucb_sliding = env.round(pulled_arm_ucb_sliding)
 
-            ts_learner.update(pulled_arm_ts, reward_ts[0])
-            tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            ucb_learner_detecting.update(pulled_arm_detecting, reward_ucb_detecting[0])
+            ucb_learner_sliding.update(pulled_arm_ucb_sliding, reward_ucb_sliding[0])
 
-        ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
-        tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
+        ucb_detecting_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
+        ucb_sliding_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
 
     idx_max=np.argmax(Clayrvoiant)
     clayt_opt=[idx_max%n_arms,idx_max%pow(n_arms,2)//n_arms,idx_max%pow(n_arms,3)//pow(n_arms,2),idx_max%pow(n_arms,4)//pow(n_arms,3),idx_max//pow(n_arms,4)]
@@ -155,28 +155,28 @@ if __name__ == '__main__':
     print(opt)
 
     plt.figure(0)
-    plt.ylabel("Regret")
+    plt.ylabel("regret")
     plt.xlabel("t")
-    plt.plot(np.arange(0, T+1), Regret_ts, 'r')
-    plt.plot(np.arange(0, T+1), Regret_5D, 'b')
-    plt.plot(np.arange(0, T+1), Regret_ucb, 'g')
+    plt.plot(np.arange(0, T+1), regret_ucb, 'r')
+    plt.plot(np.arange(0, T+1), regret_ucb_detecting, 'b')
+    plt.plot(np.arange(0, T+1), regret_ucb_sliding, 'g')
     plt.legend(["UCB", "UCB_detecting", "UCB_sliding"])
     plt.show()
 
-    Ex_Reward_Clayr=np.zeros(T)
-    Ex_Reward_Clayr[0:breakpoints[0]]=opt[0]
+    ex_reward_Clayr=np.zeros(T)
+    ex_reward_Clayr[0:breakpoints[0]]=opt[0]
     for brk_idx in range(len(breakpoints)-1):
-        Ex_Reward_Clayr[breakpoints[i]:breakpoints[i+1]]=opt[i]
-    Ex_Reward_Clayr[breakpoints[-1]:]=opt[-1]
+        ex_reward_Clayr[breakpoints[i]:breakpoints[i+1]]=opt[i]
+    ex_reward_Clayr[breakpoints[-1]:]=opt[-1]
 
     plt.figure(1)
     plt.ylabel("Expected reward")
     plt.xlabel("t")
-    plt.plot(np.arange(0, T), Ex_Reward_ts, 'r')
-    plt.plot(np.arange(0, T), Ex_Reward_5D, 'b')
-    plt.plot(np.arange(0, T), Ex_Reward_ucb, 'g')
-    plt.plot(np.arange(0, T), Ex_Reward_Clayr, 'b')
-    plt.legend(["TS", "TSTOP5D", "UCB","Clayr"])
+    plt.plot(np.arange(0, T), ex_reward_ucb, 'r')
+    plt.plot(np.arange(0, T), ex_reward_ucb_detecting, 'b')
+    plt.plot(np.arange(0, T), ex_reward_ucb_sliding, 'g')
+    plt.plot(np.arange(0, T), ex_reward_Clayr, 'c')
+    plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
     plt.show()
 
     """ plt.figure(1)
