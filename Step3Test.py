@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations
+from utils import plot_gaussian_process
 
 
 if __name__ == '__main__':
@@ -107,6 +108,8 @@ if __name__ == '__main__':
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            
+            plot_gaussian_process(ts_learner)
 
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)

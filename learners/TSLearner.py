@@ -1,12 +1,11 @@
 from .Learner import Learner
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel as W
 from typing import List, Dict
 from environment.Algorithms import budget_allocations
 from environment.Environment import Environment
 from environment.RandomEnvironment import RandomEnvironment
-import matplotlib.pyplot as plt
 
 
 
@@ -37,7 +36,7 @@ class GPTS_Learner(Learner):
         self.gps = []
         for _ in range(self.n_products):
             alpha = 1e-5 # 10 in prof code
-            kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
+            kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3)) + W(1.0)
             self.gps.append(
                 GaussianProcessRegressor(
                     kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
@@ -66,12 +65,9 @@ class GPTS_Learner(Learner):
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
-            """ if self.t >= 49:
-                    plt.plot(self.arms,means)
-                    plt.fill_between(self.arms, means-sigmas, means+sigmas)
-                    plt.show() """
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
+            
 
     def update(self, pulled_arm, reward):
         self.t += 1

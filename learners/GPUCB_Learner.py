@@ -1,7 +1,7 @@
 from .Learner import*
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel as W
 from typing import List, Dict
 from environment.Algorithms import budget_allocations
 from environment.Environment import Environment
@@ -24,13 +24,13 @@ class GPUCB_Learner(Learner):
         self.method = method
         self.gps = []
         for _ in range(self.n_products):
-            alpha = 1e-5
-            kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
+            alpha = 1e-5 # 10 in prof code
+            kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3)) + W(1.0)
             self.gps.append(
                 GaussianProcessRegressor(
                     kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
                     ) # keep a reference to training data to avoid copying it every time
-                    ) 
+                ) 
         if environment_type == 'fast':
             self.env = Environment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
         else:

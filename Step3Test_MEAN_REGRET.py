@@ -80,7 +80,7 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 10
+    T = 100
 
     Regret_ts=np.zeros(T+1)
     Regret_5D=np.zeros(T+1)
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), Ex_Reward_ts, 'r')
     plt.plot(np.arange(0, T), Ex_Reward_5D, 'b')
     plt.plot(np.arange(0, T), Ex_Reward_ucb, 'g')
-    plt.plot(np.arange(0, T), Ex_Reward_Clayr, 'b')
+    plt.plot(np.arange(0, T), Ex_Reward_Clayr, 'c')
     plt.legend(["TS", "TSTOP5D", "UCB","Clayr"])
     plt.show()
 
