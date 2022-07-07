@@ -5,13 +5,13 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
     """ 
     Dynamic programming algorithm for determining the optimal allocation of budgets to the different subcampaigns.
     It exploits a tabular representation of the solution.
-:param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
--inf = -np.inf
-:param budgets: list of budgets,
-:param subtract_budgets: whether to subtract the budget from the last row and consider also the advertising costs or not.
+    :param value_matrix: |products|x|budgets| matrix containting for each product i its value if budget j is spent on it
+    -inf = -np.inf
+    :param budgets: list of budgets,
+    :param subtract_budgets: whether to subtract the budget from the last row and consider also the advertising costs or not.
 
-:return :
-"""
+    :return : best combination of budgets and (expected) value for it.
+    """
     n_products = value_matrix.shape[0]
     n_budgets = value_matrix.shape[1]
     solution_value = np.zeros(shape=(n_products+1, n_budgets)) #actually we need just the previous row (TODO make more efficient later)
@@ -49,7 +49,24 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
     best_comb = np.argmax(solution_value[n_products])
     return solution[best_comb], solution_value[n_products, best_comb]
 
-
+def clairvoyant(environment, arms, bounds, total_mass=100):
+    """ 
+    Clairvoyant algorithm. Given an environment, a set of arms, per product bounds, get the best allocation of budgets to campaigns.
+    """
+    n_arms = len(arms)
+    n_products = environment.n_prods
+    value_matrix = np.zeros((n_products, n_arms))
+    unfeasible_arms = []
+    for p in range(n_products):
+        unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
+    alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions()[0]])
+    alpha_functions = alpha_functions/100 #total_mass
+    expected_margin = np.zeros((n_products))
+    for p in range(n_products):
+        expected_margin[p] = environment.simplified_round(p, n_sim = 100000)
+        value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *100 # n_users
+        value_matrix[p, unfeasible_arms[p]] = -np.inf
+    return budget_allocations(value_matrix, arms, subtract_budget=True)
 
 if __name__=='__main__':
     value_matrix = np.array([[-np.inf, 90, 100, 105, 110, -np.inf, -np.inf, -np.inf],

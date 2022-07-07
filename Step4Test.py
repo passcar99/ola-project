@@ -5,7 +5,7 @@ from environment.Environment import Environment
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
-from environment.Algorithms import budget_allocations
+from environment.Algorithms import budget_allocations, clairvoyant
 
 
 if __name__ == '__main__':
@@ -30,23 +30,8 @@ if __name__ == '__main__':
     
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
-    unfeasible_arms = []
-    for p in range(n_products):
-        unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
 
-    #clairvoyant
-    value_matrix = np.zeros((n_products, n_arms))
-    alpha_functions = np.array([ fun(arms) for fun in env.alpha_functions()[0]])
-    alpha_functions = alpha_functions/100 #total_mass
-    expected_margin = np.zeros((n_products))
-    for p in range(n_products):
-        expected_margin[p] = env.simplified_round(p, n_sim = 10000)
-        value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *100 # n_users
-        value_matrix[p, unfeasible_arms[p]] = -np.inf
-    opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1]
-    #print(expected_margin)
-    print(budget_allocations(value_matrix, arms, subtract_budget=True), expected_margin.flatten())
-
+    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100)
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
 
@@ -66,7 +51,6 @@ if __name__ == '__main__':
         clairvoyant_rewards = []
         clairvoyant_ts5d_rewards = []
         clairvoyant_ucb_rewards = []
-        print(avg_sold)
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
@@ -74,14 +58,8 @@ if __name__ == '__main__':
             reward_ts = env.round(pulled_arm_ts)
             reward_ucb = env.round(pulled_arm_ucb)
 
-            
             clairvoyant_rewards.append(opt)
 
-            """ n_users  = 100
-            for p in range(n_products):
-                value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *n_users
-                value_matrix[p, unfeasible_arms[p]] = -np.inf
-            opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1] """
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
 
@@ -92,7 +70,7 @@ if __name__ == '__main__':
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
 
-    print(budget_allocations(value_matrix, arms, subtract_budget=True)[0])
+    print(optimal_alloc, opt)
     plt.figure(0)
     plt.ylabel("Regret, step 4")
     plt.xlabel("t")

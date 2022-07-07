@@ -5,7 +5,7 @@ from environment.Environment import Environment
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
-from environment.Algorithms import budget_allocations
+from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process
 
 
@@ -31,22 +31,7 @@ if __name__ == '__main__':
     
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
-    unfeasible_arms = []
-    for p in range(n_products):
-        unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
-
-    #clairvoyant
-    value_matrix = np.zeros((n_products, n_arms))
-    alpha_functions = np.array([ fun(arms) for fun in env.alpha_functions()[0]])
-    alpha_functions = alpha_functions/100 #total_mass
-    expected_margin = np.zeros((n_products))
-    for p in range(n_products):
-        expected_margin[p] = env.simplified_round(p, n_sim = 10000)
-        value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *100 # n_users
-        value_matrix[p, unfeasible_arms[p]] = -np.inf
-    opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1]
-    #print(expected_margin)
-    print(budget_allocations(value_matrix, arms, subtract_budget=True), expected_margin.flatten())
+    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100)
 
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
@@ -78,20 +63,14 @@ if __name__ == '__main__':
             
             clairvoyant_rewards.append(opt)
 
-            """ n_users  = 100
-            for p in range(n_products):
-                value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *n_users
-                value_matrix[p, unfeasible_arms[p]] = -np.inf
-            opt = budget_allocations(value_matrix, arms, subtract_budget=True)[1] """
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
-            print(ts_learner.con_matrix)
-            print(ts_learner.constraints_matrix)
-
-            print(connectivity_matrix)
+            
             plot_gaussian_process(ts_learner)
 
+        print(ts_learner.con_matrix)
 
+        print(connectivity_matrix)
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
@@ -100,7 +79,7 @@ if __name__ == '__main__':
 
 
 
-    print(budget_allocations(value_matrix, arms, subtract_budget=True)[0])
+    print(optimal_alloc, opt)
     plt.figure(0)
     plt.ylabel("Regret, step 5")
     plt.xlabel("t")

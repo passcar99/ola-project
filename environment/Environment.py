@@ -19,6 +19,8 @@ class Environment():
         self.prob_buy=prob_buy
         self.expected_number_sold=expected_number_sold
         self.margins=margins
+        self.n_prods = len(self.margins)
+
 
     """ Developed with only ONE quantity bought and all the item have same price, to include the number of item distribution must multiply wherever there is a Prob_Buy
     the expected value of object bought together with the price of such object, or in other words the thing that is missing is the multiplication of the probabilities
