@@ -16,7 +16,7 @@ class Learner():
         :param environment_type: type of environment to use to estimate the expected margin.
         """
         self.arms = arms
-        self.n_products = len(con_matrix)
+        self.n_products = len(margins)
         self.n_arms = len(arms)
         self.t = 0
         self.rewards_per_arm = [[[] for a in range(self.n_arms)] for p in range(self.n_products)]

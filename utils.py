@@ -19,4 +19,4 @@ def plot_gaussian_process(learner,dir_name=""):
     file_name = 'plots/'+ dir_name +'/iter'+str(learner.t)
     plt.suptitle('Iteration'+str(learner.t))
     plt.savefig(fname=file_name)
-    plt.clf()
+    plt.close(fig)

@@ -128,6 +128,7 @@ class RandomEnvironment():
         for user_category in category_realizations:
             cusum = np.zeros((5))
             activation_history = np.zeros((user_category['n_users'], 5))
+            items_sold = np.zeros((user_category['n_users'], 5))
             for i in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
@@ -136,9 +137,11 @@ class RandomEnvironment():
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+                items_sold[i, :] = bought_nodes
                 activation_history[i, :] = activated_nodes
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['activation_history'] = activation_history
+            user_category['items'] = items_sold
         self.t += 1
         return category_realizations
 
