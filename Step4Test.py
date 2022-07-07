@@ -71,8 +71,8 @@ if __name__ == '__main__':
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
 
-            reward_ts = env.round_step_4(pulled_arm_ts)
-            reward_ucb = env.round_step_4(pulled_arm_ucb)
+            reward_ts = env.round(pulled_arm_ts)
+            reward_ucb = env.round(pulled_arm_ucb)
 
             
             clairvoyant_rewards.append(opt)

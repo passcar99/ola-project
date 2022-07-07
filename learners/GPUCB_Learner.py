@@ -48,6 +48,8 @@ class GPUCB_Learner(Learner):
             if (abs((alphas[product+1]-self.means[product][pulled_arm_idx]))/math.sqrt(self.sigmas[product][pulled_arm_idx])>1.95):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
                 self.last_change=len(self.pulled_arms[product])
                 print("#########Change detected at T="+str(self.last_change))
+
+
     def update_model(self):
         for product in range(self.n_products):
             if self.method=="slide":
@@ -62,10 +64,6 @@ class GPUCB_Learner(Learner):
             gp = self.gps[product]
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
-            """ if self.t >= 10:
-                plt.plot(self.arms,means)
-                plt.fill_between(self.arms, means-sigmas, means+sigmas)
-                plt.show() """
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
             
@@ -82,11 +80,11 @@ class GPUCB_Learner(Learner):
         self.update_model()
         
     def pull_arm(self):
-        sampled_values = self.means + self.sigmas # first method 
+        upper_confidence_bounds = self.means + self.sigmas # first method 
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
             expected_margin = self.env.simplified_round(p, n_sim = 1000)
-            value_matrix[p, :] = sampled_values[p, :]* expected_margin * self.avg_n_users
+            value_matrix[p, :] = upper_confidence_bounds[p, :]* expected_margin * self.avg_n_users
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
            
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]

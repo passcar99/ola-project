@@ -21,14 +21,11 @@ class RandomEnvironment():
         :param prob_buy: probability that an item is bought when displayed as primary.
         :param avg_sold: average quantity of items bought for each product when displayed as primary.
         :param margins: margin (profit) for each arm.
-        :param bounds: lower and upper bounds for each product (n_products*2 matrix).
-        :param environment_type: type of environment to use to estimate the expected margin.
         """
         self.user_classes = []
         for user_class in conpam_matrix:
             self.user_classes.append(UserCategory(**user_class))
         self.con_matrix=con_matrix
-        self.lam=0.5;#implicit in Con_matrix
         self.prob_buy=np.array(prob_buy)
         self.avg_sold = np.array(avg_sold)
         self.margins = np.array(margins)
@@ -37,120 +34,15 @@ class RandomEnvironment():
         self.t = 0
         
 
-    def round(self, budgets):
-        """ 
-        Function returning the feedback from a round in the basic case.
-        :param budgets: superarm (list of budgets for each product).
-        :return: list of dictionaries. Each element of the list contains the number of users,
-         the alphas realization and the profit for the corresponding user category.
-        """
-        category_realizations = [{} for _ in range(len(self.user_classes))]
-
-        for i, user_class in enumerate(self.user_classes):
-            n_users = np.random.poisson(user_class.avg_number)
-            betas = user_class.get_alpha_from_budgets(budgets, self.t)
-            non_zero_prods = np.nonzero(betas)
-            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
-            alphas_tilde = np.zeros((self.n_prods+1))
-            alphas_tilde[non_zero_prods] = alphas
-            category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
-
-        for n in category_realizations:
-            cusum = np.zeros((5))
-            for _ in tqdm(range(n['n_users']), leave=False):
-                landing_product = np.nonzero(np.random.multinomial(1, n['alphas']))[0][0]
-                self.recursion = 1
-                if landing_product == 0: #competitor
-                    continue
-                activated_nodes = np.zeros((5), dtype=int)
-                bought_nodes = np.zeros((5))
-                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
-            n['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
-        self.t += 1
-        return category_realizations
-
-    def round_step_4(self, budgets):
-        """ 
-        Function returning the feedback from a round in the step_4 case.
-        :param budgets: superarm (list of budgets for each product).
-        :return: list of dictionaries. Each element of the list contains the number of users,
-         the alphas realization, the number of items sold to each user and the profit for the corresponding user category.
-        """
-        category_realizations = [{} for _ in range(len(self.user_classes))]
-        for i, user_class in enumerate(self.user_classes):
-            n_users = np.random.poisson(user_class.avg_number)
-            betas = user_class.get_alpha_from_budgets(budgets, self.t)
-            non_zero_prods = np.nonzero(betas)
-            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
-            alphas_tilde = np.zeros((self.n_prods+1))
-            alphas_tilde[non_zero_prods] = alphas
-            category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
-
-        for user_category in category_realizations:
-            cusum = np.zeros((5))
-            items_sold = np.zeros((user_category['n_users'], 5))
-            for _ in tqdm(range(user_category['n_users']), leave=False):
-                landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
-                if landing_product == 0: #competitor
-                    continue
-                self.recursion = 1
-                activated_nodes = np.zeros((5), dtype=int)
-                bought_nodes = np.zeros((5))
-                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
-                items_sold[i, :] = bought_nodes
-            user_category['items'] = items_sold
-            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
-        self.t += 1
-        return category_realizations
-
-    def round_step_5(self, budgets):
-        """ 
-        Function returning the feedback from a round in the step_5 case.
-        :param budgets: superarm (list of budgets for each product).
-        :return: list of dictionaries. Each element of the list contains the number of users,
-         the alphas realization, the number of items sold to each user, the history of activated nodes for each visit
-          and the profit for the corresponding user category.
-        """
-        category_realizations = [{} for _ in range(len(self.user_classes))]
         
-        for i, user_class in enumerate(self.user_classes):
-            n_users = np.random.poisson(user_class.avg_number)
-            betas = user_class.get_alpha_from_budgets(budgets, self.t)
-            non_zero_prods = np.nonzero(betas)
-            alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
-            alphas_tilde = np.zeros((self.n_prods+1))
-            alphas_tilde[non_zero_prods] = alphas
-            category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
-
-        for user_category in category_realizations:
-            cusum = np.zeros((5))
-            activation_history = np.zeros((user_category['n_users'], 5))
-            items_sold = np.zeros((user_category['n_users'], 5))
-            for i in tqdm(range(user_category['n_users']), leave=False):
-                landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
-                if landing_product == 0: #competitor
-                    continue
-                self.recursion = 1
-                activated_nodes = np.zeros((5), dtype=int)
-                bought_nodes = np.zeros((5))
-                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
-                items_sold[i, :] = bought_nodes
-                activation_history[i, :] = activated_nodes
-            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
-            user_category['activation_history'] = activation_history
-            user_category['items'] = items_sold
-        self.t += 1
-        return category_realizations
-
-    def round_step_7(self, budgets):
+    def round(self, budgets, observed_features=False):
         """ 
-        Function returning the feedback from a round in the step_7 case.
+        Function returning the feedback from a round. It returns the data that may be required by learners for each step.
         :param budgets: superarm (list of budgets for each product).
+        :param observed_features: whether or not user features are observed. True only for step 7.
         :return: list of dictionaries. Each element of the list contains the number of users,
-         the alphas realization, the number of items sold to each user, the feature values and the profit for the corresponding user category.
+         the alphas realization, the number of items sold to each user, activation status of each node for every visit,
+         the feature values and the profit for the corresponding user category.
         """
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
@@ -167,6 +59,7 @@ class RandomEnvironment():
         for cat_idx , user_category in enumerate(category_realizations):
             cusum = np.zeros((5))
             items_sold = np.zeros((user_category['n_users'], 5))
+            activation_history = np.zeros((user_category['n_users'], 5))
             for i in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor
@@ -176,9 +69,12 @@ class RandomEnvironment():
                 bought_nodes = np.zeros((5))
                 cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 items_sold[i, :] = bought_nodes
+                activation_history[i, :] = activated_nodes
             user_category['items'] = items_sold
             user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
-            user_category['features'] = self.user_classes[cat_idx].features
+            user_category['activation_history'] = activation_history
+            if observed_features:
+                user_category['features'] = self.user_classes[cat_idx].features
         self.t +=1
         return category_realizations
     

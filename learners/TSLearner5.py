@@ -46,7 +46,7 @@ class GPTS_Learner5(GPTS_Learner):
                 previous_nodes = np.logical_and(activation_history[visit] == activ_time-1,active_nodes)
                 sum_weights = previous_nodes.sum()
                 if sum_weights != 0:
-                    visit_prob[previous_nodes, product] = (1/sum_weights)#/self.prob_buy[previous_nodes]
+                    visit_prob[previous_nodes, product] = (1/sum_weights)
                 other_prods = np.arange(self.n_products)!=product
                 self.prod_count[other_prods, product] += (previous_nodes)[other_prods]>0 # active before current node
                 self.prod_count[other_prods, product] += (np.logical_and(active_nodes, activ_time==0))[other_prods] # active but current node isn't
