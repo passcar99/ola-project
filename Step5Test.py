@@ -50,9 +50,7 @@ if __name__ == '__main__':
         ts_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
         clairvoyant_rewards = []
-        clairvoyant_ts5d_rewards = []
-        clairvoyant_ucb_rewards = []
-        print(avg_sold)
+
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()

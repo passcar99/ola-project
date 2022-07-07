@@ -12,7 +12,7 @@ import math
 
 class GPUCB_Learner(Learner):
 
-    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast',method='normal',sliding_window=1000000):
+    def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast',method='normal',sliding_window=1000000, bound_type='gaussian'):
         super().__init__(arms,conpam_matrix,con_matrix, prob_buy, avg_sold, margins, bounds)
         self.means = np.zeros((self.n_products, self.n_arms))
         self.sigmas = np.ones((self.n_products, self.n_arms))*10
@@ -35,6 +35,7 @@ class GPUCB_Learner(Learner):
             self.env = Environment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
         else:
             self.env = RandomEnvironment(conpam_matrix, con_matrix, prob_buy, avg_sold, margins)
+        self.bound_type = bound_type
             
     def update_observations(self, pulled_arms, reward):
         super().update_observations(pulled_arms, reward)
@@ -67,6 +68,8 @@ class GPUCB_Learner(Learner):
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
             self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
             
+            if self.bound_type == "paper":
+                self.sigmas *= np.sqrt(2*np.log(self.n_arms*self.t**2*np.pi**2/(6*0.01)))
             #for 2° method of ucb 
             #self.means[product,pulled_arm] = (self.means[pulled_arm]*(self.t-1)+reward)/self.t
             #for a in range(self.n_arms):

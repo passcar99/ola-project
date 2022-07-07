@@ -45,11 +45,10 @@ if __name__ == '__main__':
 
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
+    #ucb_paper_rewards_per_experiment = []
     tsTOP5D_rewards_per_experiment = []
 
-    clairvoyant_ts_rewards_per_experiment = []
-    clairvoyant_ts5d_rewards_per_experiment = []
-    clairvoyant_ucb_rewards_per_experiment = []
+    clairvoyant_rewards_per_experiment = []
     n_experiments = 1
 
     T = 100
@@ -60,49 +59,44 @@ if __name__ == '__main__':
         ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
         tsTOP5D_learner = GPTS_Learner_TOP5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
         ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        #ucb_learner_paper = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast', 'paper')
         ts_learner.avg_n_users = 100
         tsTOP5D_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
-        clairvoyant_ts_rewards = []
-        clairvoyant_ts5d_rewards = []
-        clairvoyant_ucb_rewards = []
+        clairvoyant_rewards = [opt]*T
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_5D = tsTOP5D_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
+            #pulled_arm_ucb_paper = ucb_learner_paper.pull_arm()
 
             reward_ts = env.round(pulled_arm_ts)
             reward_5D = env.round(pulled_arm_5D)
             reward_ucb = env.round(pulled_arm_ucb)
-
-            print(pulled_arm_ucb, reward_ucb)
+            #reward_ucb_paper = env.round(pulled_arm_ucb_paper)
             
-            clairvoyant_ts_rewards.append(opt)
-            clairvoyant_ts5d_rewards.append(opt)
-            clairvoyant_ucb_rewards.append(opt)
-
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            #ucb_learner_paper.update(pulled_arm_ucb_paper, reward_ucb_paper[0])
             
             plot_gaussian_process(ts_learner)
 
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        #ucb_paper_rewards_per_experiment.append(ucb_learner_paper.collected_rewards)
         tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
 
-        clairvoyant_ts_rewards_per_experiment.append(clairvoyant_ts_rewards)
-        clairvoyant_ts5d_rewards_per_experiment.append(clairvoyant_ts5d_rewards)
-        clairvoyant_ucb_rewards_per_experiment.append(clairvoyant_ucb_rewards)
+        clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
     print(optimal_alloc, opt)
     plt.figure(0)
     plt.ylabel("Regret")
     plt.xlabel("t")
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_ts_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_ts5d_rewards_per_experiment, axis = 0)-np.mean( tsTOP5D_rewards_per_experiment, axis = 0)), 'b')
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_ucb_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( tsTOP5D_rewards_per_experiment, axis = 0)), 'b')
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
 
     plt.legend(["TS", "TSTOP5D", "UCB"])
     plt.show()
