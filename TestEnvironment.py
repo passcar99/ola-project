@@ -35,13 +35,11 @@ if __name__ == '__main__':
 
     alpha=[0.5, 0.1, 0.1, 0.15, 0.05, 0.1]
     
-    ProbDistribution=alpha[1]*res0+alpha[2]*res1+alpha[3]*res2+alpha[4]*res3+alpha[5]*res4
-    ProbDistribution=ProbDistribution/sum(ProbDistribution)
+    ProbDistribution=prob_buy[0]*alpha[1]*res0+prob_buy[1]*alpha[2]*res1+prob_buy[2]*alpha[3]*res2+prob_buy[3]*alpha[4]*res3+prob_buy[4]*alpha[5]*res4
     print("***Distribution over the nodes")
     print(ProbDistribution)
     print("***Value expected per user in the pool and check")
     ExpectedValueExtractedPerProduct=[ProbDistribution[0]*avg_sold[0]*margins[0],ProbDistribution[1]*avg_sold[1]*margins[1],ProbDistribution[2]*avg_sold[2]*margins[2],ProbDistribution[3]*avg_sold[3]*margins[3],ProbDistribution[4]*avg_sold[4]*margins[4]]
     print(ExpectedValueExtractedPerProduct)
     print(sum(ExpectedValueExtractedPerProduct))
-    print(env.round(alpha))
 
