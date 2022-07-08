@@ -45,8 +45,8 @@ if __name__ == '__main__':
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-        ts_learner = GPTS_Learner5(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'random')
-        ucb_learner = GPUCB_Learner5(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'random')
+        ts_learner = GPTS_Learner5(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
+        ucb_learner = GPUCB_Learner5(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
         ts_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
         clairvoyant_rewards = []

@@ -12,10 +12,11 @@ class GPTS_Learner5D(Learner5D):
  
         self.means = np.zeros((n_arms,n_arms,n_arms,n_arms,n_arms));#mean of the [i,j,k,m,l] multi-arm
         self.sigmas = np.ones((n_arms,n_arms,n_arms,n_arms,n_arms))*10;#var of the [i,j,k,m,l] multi-arm
-        self.pulled_arms = [[]]#the zeroth position occupied by the optimum found by the algorithm
-        self.collected_rewards=np.append(self.collected_rewards,0)#the zeroth position occupied by the optimum found by the algorithm
+        self.pulled_arms = [[0,0,0,0,0,],[]]#the zeroth position occupied by the the 0 the first by optimum found by the algorithm
+        self.collected_rewards=np.append(self.collected_rewards,0)#the zeroth position occupied by the 0 the first by optimum found by the algorithm
+        self.collected_rewards=np.append(self.collected_rewards,0)
         alpha = 1 # 10 in prof code
-        kernel = C(1.0, constant_value_bounds="fixed")*RBF(0.25, length_scale_bounds="fixed")
+        kernel = C(0.1, constant_value_bounds="fixed")*RBF(0.25, length_scale_bounds="fixed")
         self.gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha**2, n_restarts_optimizer=10)
         
         
@@ -32,8 +33,8 @@ class GPTS_Learner5D(Learner5D):
 
     def update_model(self,optimal_arm,optimal_reward):
         optimal_arm=[self.arms[0][optimal_arm[0]],self.arms[1][optimal_arm[1]],self.arms[2][optimal_arm[2]],self.arms[3][optimal_arm[3]],self.arms[4][optimal_arm[4]]]
-        self.pulled_arms[0]=optimal_arm
-        self.collected_rewards[0]=optimal_reward
+        self.pulled_arms[1]=optimal_arm
+        self.collected_rewards[1]=optimal_reward
         x = self.pulled_arms
         y = self.collected_rewards*6/optimal_reward#the 2 is a value which distance the neighboor of the optimal to the other superarms
         self.gp.fit(x, y.reshape(-1,1))
