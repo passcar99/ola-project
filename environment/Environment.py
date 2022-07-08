@@ -58,7 +58,8 @@ class Environment():
         probability_from_alpha5=alphas[5]*self.prob_buy[4]*self.site_landing(4,np.ones((5,1)))
 
         probabilities_on_nodes=probability_from_alpha1+probability_from_alpha2+probability_from_alpha3+probability_from_alpha4+probability_from_alpha5
-        probabilities_on_nodes=probabilities_on_nodes/sum(probabilities_on_nodes)
+
+        print(probabilities_on_nodes)
         value_from_node1=probabilities_on_nodes[0]*self.expected_number_sold[0]*self.margins[0]
         value_from_node2=probabilities_on_nodes[1]*self.expected_number_sold[1]*self.margins[1]
         value_from_node3=probabilities_on_nodes[2]*self.expected_number_sold[2]*self.margins[2]
