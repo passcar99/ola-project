@@ -25,12 +25,12 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
 
-    breakpoints = np.array([10])
+    breakpoints = np.array([25])
     conpam_matrix = [
         {"alpha_params": [
-                            [(0, 5, 2), (0, 5, 20),(0, 5, 20),(0, 5, 20),(0, 5, 20)],
+                            [(0, 5, 40), (0, 5, 5),(5, 15, 10),(5, 15, 15),(5, 15, 20)],
                             #[(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)],
-                            [(0, 5, 20), (0, 5, 20),(0, 5, 20),(0, 5, 20),(0, 5, 20)]
+                            [(5, 15, 40), (5, 15, 20),(0, 5, 20),(0, 5, 20),(0, 5, 20)]
                             #[(0, 2, 20), (3, 10, 20),(0, 5, 20),(5, 17, 20),(2, 4, 20)]
                          ], 
         "features":[0, 0], "total_mass":100, "avg_number":100, "breakpoints":breakpoints} 
@@ -86,14 +86,22 @@ if __name__ == '__main__':
                             sys.stdout.flush()
                             ii+=1
     opt = Clayrvoiant.max(0)#opt row vector with opt for every phase
-    print(opt)
+    idx_max_phase1=np.argmax(Clayrvoiant[:,0])
+    idx_max_phase2=np.argmax(Clayrvoiant[:,1])
+    clayt_opt1=[idx_max_phase1%n_arms,idx_max_phase1%pow(n_arms,2)//n_arms,idx_max_phase1%pow(n_arms,3)//pow(n_arms,2),idx_max_phase1%pow(n_arms,4)//pow(n_arms,3),idx_max_phase1//pow(n_arms,4)]
+    clayt_opt2=[idx_max_phase2%n_arms,idx_max_phase2%pow(n_arms,2)//n_arms,idx_max_phase2%pow(n_arms,3)//pow(n_arms,2),idx_max_phase2%pow(n_arms,4)//pow(n_arms,3),idx_max_phase2//pow(n_arms,4)]
+    print("Optimum phase 1: ")
+    print(clayt_opt1)
+    print("Optimum phase 2: ")
+    print(clayt_opt2)
+
 
     ucb_rewards_per_experiment = []
     ucb_detecting_rewards_per_experiment = []
     ucb_sliding_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 20
+    T = 50
 
     regret_ucb=np.zeros(T+1)
     regret_ucb_detecting=np.zeros(T+1)
@@ -104,9 +112,11 @@ if __name__ == '__main__':
     ex_reward_ucb_sliding=np.zeros(T)
 
     for e in tqdm(range(n_experiments)):
-        env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+        env_ucb = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        env_ucb_detecting = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ucb_learner_detecting = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','detect')
+        env_ucb_sliding = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ucb_learner_sliding = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast','slide',int(2*math.sqrt(T)))
         ucb_learner.avg_n_users = 100
         ucb_learner_detecting.avg_n_users = 100
@@ -140,9 +150,9 @@ if __name__ == '__main__':
             ex_reward_ucb_detecting[t]=Clayrvoiant[number_detecting][phase]
             ex_reward_ucb_sliding[t]=Clayrvoiant[number_ucb_sliding][phase]
 
-            reward_ucb = env.round(pulled_arm_ucb)
-            reward_ucb_detecting = env.round(pulled_arm_detecting)
-            reward_ucb_sliding = env.round(pulled_arm_ucb_sliding)
+            reward_ucb = env_ucb.round(pulled_arm_ucb)
+            reward_ucb_detecting = env_ucb_detecting.round(pulled_arm_detecting)
+            reward_ucb_sliding = env_ucb_sliding.round(pulled_arm_ucb_sliding)
 
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
             ucb_learner_detecting.update(pulled_arm_detecting, reward_ucb_detecting[0])
@@ -154,10 +164,7 @@ if __name__ == '__main__':
         ucb_detecting_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
         ucb_sliding_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
 
-    idx_max=np.argmax(Clayrvoiant)
-    clayt_opt=[idx_max%n_arms,idx_max%pow(n_arms,2)//n_arms,idx_max%pow(n_arms,3)//pow(n_arms,2),idx_max%pow(n_arms,4)//pow(n_arms,3),idx_max//pow(n_arms,4)]
-    print(clayt_opt)
-    print(opt)
+
 
     plt.figure(0)
     plt.ylabel("regret")
