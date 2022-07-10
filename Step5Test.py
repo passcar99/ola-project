@@ -1,6 +1,7 @@
 from environment.RandomEnvironment import RandomEnvironment
 from learners.TSLearner5 import GPTS_Learner5
 from learners.GPUCB_Learner5 import GPUCB_Learner5
+from learners.TSLearner5Topped5D import GPTS_Learner5Topped5D
 from environment.Environment import Environment
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -35,6 +36,7 @@ if __name__ == '__main__':
 
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
+    tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
 
@@ -47,22 +49,31 @@ if __name__ == '__main__':
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ts_learner = GPTS_Learner5(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
         ucb_learner = GPUCB_Learner5(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
+        tsTOP5D_learner = GPTS_Learner5Topped5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+
         ts_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
+        tsTOP5D_learner.avg_n_users = 100
+
         clairvoyant_rewards = []
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
+            pulled_arm_5D = tsTOP5D_learner.pull_arm()
+
 
             reward_ts = env.round(pulled_arm_ts)
             reward_ucb = env.round(pulled_arm_ucb)
+            reward_5D = env.round(pulled_arm_5D)
 
             
             clairvoyant_rewards.append(opt)
 
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
+
             
             plot_gaussian_process(ts_learner)
 
@@ -72,6 +83,8 @@ if __name__ == '__main__':
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
+
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
@@ -83,6 +96,8 @@ if __name__ == '__main__':
     plt.xlabel("t")
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
+    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( tsTOP5D_rewards_per_experiment, axis = 0)), 'b')
+
 
     plt.legend(["TS", "UCB"])
     plt.show()
