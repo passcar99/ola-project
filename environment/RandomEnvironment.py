@@ -49,6 +49,7 @@ class RandomEnvironment():
         for i, user_class in enumerate(self.user_classes):
             n_users = np.random.poisson(user_class.avg_number)
             betas = user_class.get_alpha_from_budgets(budgets, self.t)
+            betas[betas<0]=0
             non_zero_prods = np.nonzero(betas)
             alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
             alphas_tilde = np.zeros((self.n_prods+1))
