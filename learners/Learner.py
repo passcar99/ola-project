@@ -3,7 +3,7 @@ from typing import List, Dict
 
  # TODO modify later to take into account the subclasses
 class Learner():
-
+    NAME = "Learner"
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds):
         """ 
         :param arms: list of arms (budgets).

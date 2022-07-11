@@ -9,9 +9,14 @@ import numpy as np
 from environment.Algorithms import budget_allocations
 import sys
 import math
-from utils import plot_gaussian_process
+from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 import warnings
 warnings.filterwarnings("ignore")
+
+
+EXPERIMENT_NAME = "Step6"
+DISPLAY_FIGURE=True
+
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -164,7 +169,9 @@ if __name__ == '__main__':
         ucb_detecting_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
         ucb_sliding_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
 
-
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    save_rewards(ucb_detecting_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_detecting.NAME+'_detecting', -1)
+    save_rewards(ucb_sliding_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_sliding.NAME+'_sliding', -1)
 
     plt.figure(0)
     plt.ylabel("regret")
@@ -181,7 +188,7 @@ if __name__ == '__main__':
         ex_reward_Clayr[breakpoints[i]:breakpoints[i+1]]=opt[i]
     ex_reward_Clayr[breakpoints[-1]:]=opt[-1]
 
-    plt.figure(1)
+    fig = plt.figure(1)
     plt.ylabel("Expected reward")
     plt.xlabel("t")
     plt.plot(np.arange(0, T), ex_reward_ucb, 'r')
@@ -189,7 +196,9 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), ex_reward_ucb_sliding, 'g')
     plt.plot(np.arange(0, T), ex_reward_Clayr, 'c')
     plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
-    plt.show()
+
+    plot_and_save_rewards([ucb_rewards_per_experiment,ucb_detecting_rewards_per_experiment,ucb_sliding_rewards_per_experiment],
+                        ex_reward_Clayr, [["UCB vanilla", "UCB detecting", "UCB sliding",], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

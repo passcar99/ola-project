@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
+from utils import save_rewards, plot_and_save_rewards
+
+EXPERIMENT_NAME = "Step4"
+DISPLAY_FIGURE=True
+
 
 
 if __name__ == '__main__':
@@ -37,9 +42,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 1
+    n_experiments = 2
 
-    T = 200
+    T = 5
 
 
     for e in tqdm(range(n_experiments)):
@@ -69,15 +74,12 @@ if __name__ == '__main__':
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
 
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
     print(optimal_alloc, opt)
-    plt.figure(0)
-    plt.ylabel("Regret, step 4")
-    plt.xlabel("t")
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
-
-    plt.legend(["TS", "UCB"])
-    plt.show()
+    
+    plot_and_save_rewards([ts_rewards_per_experiment, ucb_rewards_per_experiment],
+                        clairvoyant_rewards_per_experiment, ["TS", "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

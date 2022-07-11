@@ -16,6 +16,7 @@ class GPTS_Learner(Learner):
     feasible superarm.
     
     """
+    NAME = "GPTS_Learner"
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast', sliding_window=1000000):
         """ 
         :param arms: list of arms (budgets).
@@ -66,7 +67,7 @@ class GPTS_Learner(Learner):
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
-            self.sigmas[product] = np.maximum(self.sigmas[product], 1e-2)
+            self.sigmas[product] = np.maximum(self.sigmas[product], 1e-5)
             
 
     def update(self, pulled_arm, reward):

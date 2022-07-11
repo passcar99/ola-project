@@ -6,6 +6,9 @@ from .TSLearner import GPTS_Learner
 
 
 class GPTS_Learner5(GPTS_Learner):
+
+    NAME = "GPTS_Learner5"
+
     """ 
     Gaussian Process Thompson Sampling bandit. It estimated the click rate(?) of each product independently.
     At every round it computes the alphas and the expected margins and fills the DP table. Then selects one of the 

@@ -5,6 +5,8 @@ from .GPUCB_Learner import GPUCB_Learner
 
 class GPUCB_Learner5(GPUCB_Learner):
 
+    NAME = "GPTS_Learner5"
+
     def __init__(self, arms, conpam_matrix:List[Dict], conn_constr_matrix, prob_buy,avg_sold, margins, bounds,environment_type = 'fast'):
         """ 
         :param arms: list of arms (budgets).

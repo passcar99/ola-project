@@ -11,6 +11,8 @@ import math
 
 
 class GPUCB_Learner(Learner):
+    
+    NAME = "GPUCB_Learner"
 
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast',method='normal',sliding_window=1000000, bound_type='gaussian'):
         super().__init__(arms,conpam_matrix,con_matrix, prob_buy, avg_sold, margins, bounds)
