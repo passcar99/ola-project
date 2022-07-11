@@ -7,7 +7,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
-from utils import plot_gaussian_process
+from utils import plot_gaussian_process, save_rewards
+
+
+EXPERIMENT_NAME = "Step5"
 
 
 if __name__ == '__main__':
@@ -88,7 +91,8 @@ if __name__ == '__main__':
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
-
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
 
     print(optimal_alloc, opt)
     plt.figure(0)

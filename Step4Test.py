@@ -7,6 +7,9 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 
+EXPERIMENT_NAME = "Step4"
+
+
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],

@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import json
 
 def plot_gaussian_process(learner,dir_name=""):
     if not(learner.t <=4 or learner.t%5==0):
@@ -20,3 +21,17 @@ def plot_gaussian_process(learner,dir_name=""):
     plt.suptitle('Iteration'+str(learner.t))
     plt.savefig(fname=file_name)
     plt.close(fig)
+
+""" 
+Function so save the rewards.
+:param rewards_list: list of rewards (of any kind)
+:param experiment_name: name of the experiment
+:param learner_name: name of the learner
+:param experiment_id: identifier of the experiment
+"""
+def save_rewards(rewards_list, experiment_name, learner_name, experiment_id=0):
+    new_dir = 'backup/'+experiment_name+'/'
+    os.makedirs(new_dir, exist_ok=True)
+    filename = new_dir + learner_name + str(experiment_id)
+    with open(filename, "w") as fp:
+        json.dump(rewards_list, fp)

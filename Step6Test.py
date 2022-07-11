@@ -9,9 +9,13 @@ import numpy as np
 from environment.Algorithms import budget_allocations
 import sys
 import math
-from utils import plot_gaussian_process
+from utils import plot_gaussian_process, save_rewards
 import warnings
 warnings.filterwarnings("ignore")
+
+
+EXPERIMENT_NAME = "Step6"
+
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -164,7 +168,9 @@ if __name__ == '__main__':
         ucb_detecting_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
         ucb_sliding_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
 
-
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    save_rewards(ucb_detecting_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_detecting.NAME+'_detecting', -1)
+    save_rewards(ucb_sliding_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_sliding.NAME+'_sliding', -1)
 
     plt.figure(0)
     plt.ylabel("regret")

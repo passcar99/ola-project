@@ -16,6 +16,7 @@ class GPTS_Learner(Learner):
     feasible superarm.
     
     """
+    NAME = "GPTS_Learner"
     def __init__(self, arms, conpam_matrix:List[Dict],con_matrix, prob_buy, avg_sold, margins, bounds,environment_type = 'fast', sliding_window=1000000):
         """ 
         :param arms: list of arms (budgets).

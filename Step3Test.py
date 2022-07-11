@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
-from utils import plot_gaussian_process
+from utils import plot_gaussian_process, save_rewards
 
-
+EXPERIMENT_NAME = "Step3"
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 1
+    n_experiments = 2
 
     T = 10
 
@@ -91,6 +91,8 @@ if __name__ == '__main__':
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
     print(optimal_alloc, opt)
     plt.figure(0)
     plt.ylabel("Regret")
