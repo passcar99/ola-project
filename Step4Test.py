@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
+from utils import save_rewards
 
 EXPERIMENT_NAME = "Step4"
+DISPLAY_FIGURE=True
 
 
 
@@ -72,15 +74,22 @@ if __name__ == '__main__':
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
 
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
     print(optimal_alloc, opt)
-    plt.figure(0)
+    fig = plt.figure(0)
     plt.ylabel("Regret, step 4")
     plt.xlabel("t")
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
 
     plt.legend(["TS", "UCB"])
-    plt.show()
+    file_name = 'backup/'+EXPERIMENT_NAME+'_rewards.png'
+    plt.savefig(fname=file_name)
+    if DISPLAY_FIGURE:
+        plt.show()
+    else:
+        plt.close(fig)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

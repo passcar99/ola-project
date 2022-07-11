@@ -15,6 +15,7 @@ warnings.filterwarnings("ignore")
 
 
 EXPERIMENT_NAME = "Step6"
+DISPLAY_FIGURE=True
 
 
 if __name__ == '__main__':
@@ -187,7 +188,7 @@ if __name__ == '__main__':
         ex_reward_Clayr[breakpoints[i]:breakpoints[i+1]]=opt[i]
     ex_reward_Clayr[breakpoints[-1]:]=opt[-1]
 
-    plt.figure(1)
+    fig = plt.figure(1)
     plt.ylabel("Expected reward")
     plt.xlabel("t")
     plt.plot(np.arange(0, T), ex_reward_ucb, 'r')
@@ -195,7 +196,13 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), ex_reward_ucb_sliding, 'g')
     plt.plot(np.arange(0, T), ex_reward_Clayr, 'c')
     plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
-    plt.show()
+
+    file_name = 'backup/'+EXPERIMENT_NAME+'_rewards.png'
+    plt.savefig(fname=file_name)
+    if DISPLAY_FIGURE:
+        plt.show()
+    else:
+        plt.close(fig)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

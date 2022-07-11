@@ -1,3 +1,4 @@
+from fileinput import filename
 from environment.RandomEnvironment import RandomEnvironment
 from learners.TSLearner import GPTS_Learner
 from learners.TSLearnerTopped5D import GPTS_Learner_TOP5D
@@ -10,6 +11,7 @@ from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards
 
 EXPERIMENT_NAME = "Step3"
+DISPLAY_FIGURE=True
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
     save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
     print(optimal_alloc, opt)
-    plt.figure(0)
+    fig = plt.figure(0)
     plt.ylabel("Regret")
     plt.xlabel("t")
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
@@ -102,7 +104,13 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
 
     plt.legend(["TS", "TSTOP5D", "UCB"])
-    plt.show()
+    
+    file_name = 'backup/'+EXPERIMENT_NAME+'_rewards.png'
+    plt.savefig(fname=file_name)
+    if DISPLAY_FIGURE:
+        plt.show()
+    else:
+        plt.close(fig)
 
     """ plt.figure(1)
     plt.ylabel("Reward")
