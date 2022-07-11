@@ -28,9 +28,9 @@ if __name__ == '__main__':
     breakpoints = np.array([25])
     conpam_matrix = [
         {"alpha_params": [
-                            [(0, 5, 40), (0, 5, 5),(5, 15, 10),(5, 15, 15),(5, 15, 20)],
+                            [(0, 5, 20), (0, 5, 5),(5, 15, 10),(5, 15, 15),(5, 15, 20)],
                             #[(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)],
-                            [(5, 15, 40), (5, 15, 20),(0, 5, 20),(0, 5, 20),(0, 5, 20)]
+                            [(5, 15, 20), (5, 15, 20),(0, 5, 20),(0, 5, 20),(0, 5, 20)]
                             #[(0, 2, 20), (3, 10, 20),(0, 5, 20),(5, 17, 20),(2, 4, 20)]
                          ], 
         "features":[0, 0], "total_mass":100, "avg_number":100, "breakpoints":breakpoints} 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     ucb_sliding_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 50
+    T = 70
 
     regret_ucb=np.zeros(T+1)
     regret_ucb_detecting=np.zeros(T+1)

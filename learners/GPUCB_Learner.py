@@ -47,14 +47,15 @@ class GPUCB_Learner(Learner):
             #change detection
             arms=list(self.arms)
             pulled_arm_idx=arms.index(pulled_arms[product])
-            Standard5DNoarmal_Sample=np.append(Standard5DNoarmal_Sample,alphas[product+1]-self.means[product][pulled_arm_idx]/self.sigmas[product][pulled_arm_idx])
-            #if (abs((alphas[product+1]-self.means[product][pulled_arm_idx]))/math.sqrt(self.sigmas[product][pulled_arm_idx])>1 and self.method=="detect"):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
+            Standard5DNoarmal_Sample=np.append(Standard5DNoarmal_Sample,(alphas[product+1]-self.means[product][pulled_arm_idx])/self.sigmas[product][pulled_arm_idx])
+            #if (abs((alphas[product+1]-self.means[product][pulled_arm_idx]))/self.sigmas[product][pulled_arm_idx]>1.95 and self.method=="detect"):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
             #    self.last_change=len(self.pulled_arms[product])
             #    print("#########OOOLD Change detected at T="+str(self.last_change))
-        print("Standardized 5D sample norm: "+str(np.linalg.norm(Standard5DNoarmal_Sample)))
-        if (np.linalg.norm(Standard5DNoarmal_Sample)>1.7 and self.method=="detect"):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
+        Standardized_5D_sample_norm = np.linalg.norm(Standard5DNoarmal_Sample)
+        print("Standardized 5D sample norm "+ self.method +": "+str(Standardized_5D_sample_norm))
+        if (Standardized_5D_sample_norm>3.88411 and self.method=="detect" and (len(self.pulled_arms[product])-self.last_change)>=10):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
                 self.last_change=len(self.pulled_arms[product])
-                print("#########Change detected at T="+str(self.last_change)+" Norm Standardized 5D Sample:"+str(np.linalg.norm(Standard5DNoarmal_Sample)))
+                print("#########Change detected at T="+str(self.last_change)+" Norm Standardized 5D Sample:"+str(Standardized_5D_sample_norm))
 
     def update_model(self):
         for product in range(self.n_products):

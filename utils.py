@@ -14,7 +14,7 @@ def plot_gaussian_process(learner,dir_name=""):
         axes[product].plot(learner.arms, means)
         axes[product].scatter(x, y, c='b')
         axes[product].fill_between(learner.arms, means-1.96*sigmas, means+1.96*sigmas, alpha=0.7, color='c')
-        axes[product].set_ylim((0, 1))
+        axes[product].set_ylim((0, 0.5))
         axes[product].set_title('Product n° '+str(product))
     file_name = 'plots/'+ dir_name +'/iter'+str(learner.t)
     plt.suptitle('Iteration'+str(learner.t))
