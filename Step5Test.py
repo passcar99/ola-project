@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
-from utils import plot_gaussian_process, save_rewards
+from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 
 
 EXPERIMENT_NAME = "Step5"
@@ -96,22 +96,9 @@ if __name__ == '__main__':
     save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
 
     print(optimal_alloc, opt)
-    fig = plt.figure(0)
-    plt.ylabel("Regret, step 5")
-    plt.xlabel("t")
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ts_rewards_per_experiment, axis = 0)), 'r')
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( ucb_rewards_per_experiment, axis = 0)), 'g')
-    plt.plot(np.arange(0, T), np.cumsum(np.mean(clairvoyant_rewards_per_experiment, axis = 0)-np.mean( tsTOP5D_rewards_per_experiment, axis = 0)), 'b')
 
-
-    plt.legend(["TS", "UCB"])
-
-    file_name = 'backup/'+EXPERIMENT_NAME+'_rewards.png'
-    plt.savefig(fname=file_name)
-    if DISPLAY_FIGURE:
-        plt.show()
-    else:
-        plt.close(fig)
+    plot_and_save_rewards([ts_rewards_per_experiment, tsTOP5D_rewards_per_experiment, ucb_rewards_per_experiment],
+                        clairvoyant_rewards_per_experiment, ["TS", "TSTOP5D", "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

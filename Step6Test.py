@@ -9,7 +9,7 @@ import numpy as np
 from environment.Algorithms import budget_allocations
 import sys
 import math
-from utils import plot_gaussian_process, save_rewards
+from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -197,12 +197,8 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), ex_reward_Clayr, 'c')
     plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
 
-    file_name = 'backup/'+EXPERIMENT_NAME+'_rewards.png'
-    plt.savefig(fname=file_name)
-    if DISPLAY_FIGURE:
-        plt.show()
-    else:
-        plt.close(fig)
+    plot_and_save_rewards([ucb_rewards_per_experiment,ucb_detecting_rewards_per_experiment,ucb_sliding_rewards_per_experiment],
+                        ex_reward_Clayr, [["UCB vanilla", "UCB detecting", "UCB sliding",], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")
