@@ -47,7 +47,7 @@ class GPUCB_Learner(Learner):
             #change detection
             arms=list(self.arms)
             pulled_arm_idx=arms.index(pulled_arms[product])
-            Standard5DNoarmal_Sample=np.append(Standard5DNoarmal_Sample,alphas[product+1]-self.means[product][pulled_arm_idx]/np.sqrt(self.sigmas[product][pulled_arm_idx]))
+            Standard5DNoarmal_Sample=np.append(Standard5DNoarmal_Sample,alphas[product+1]-self.means[product][pulled_arm_idx]/self.sigmas[product][pulled_arm_idx])
             #if (abs((alphas[product+1]-self.means[product][pulled_arm_idx]))/math.sqrt(self.sigmas[product][pulled_arm_idx])>1 and self.method=="detect"):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
             #    self.last_change=len(self.pulled_arms[product])
             #    print("#########OOOLD Change detected at T="+str(self.last_change))
