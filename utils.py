@@ -13,7 +13,7 @@ def plot_gaussian_process(learner,dir_name=""):
         means, sigmas = learner.means[product], learner.sigmas[product]
         axes[product].plot(learner.arms, means)
         axes[product].scatter(x, y, c='b')
-        axes[product].fill_between(learner.arms, means-1*np.sqrt(sigmas), means+1*np.sqrt(sigmas), alpha=0.7, color='c')
+        axes[product].fill_between(learner.arms, means-1.96*sigmas, means+1.96*sigmas, alpha=0.7, color='c')
         axes[product].set_ylim((0, 1))
         axes[product].set_title('Product n° '+str(product))
     file_name = 'plots/'+ dir_name +'/iter'+str(learner.t)
