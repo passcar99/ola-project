@@ -198,7 +198,7 @@ if __name__ == '__main__':
     plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
 
     plot_and_save_rewards([ucb_rewards_per_experiment,ucb_detecting_rewards_per_experiment,ucb_sliding_rewards_per_experiment],
-                        ex_reward_Clayr, [["UCB vanilla", "UCB detecting", "UCB sliding",], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
+                        ex_reward_Clayr, ["UCB vanilla", "UCB detecting", "UCB sliding",], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")

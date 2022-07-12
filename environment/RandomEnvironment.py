@@ -35,18 +35,31 @@ class RandomEnvironment():
         
 
         
-    def round(self, budgets, observed_features=False):
+    def round(self, budgets_per_class, observed_features=False):
         """ 
         Function returning the feedback from a round. It returns the data that may be required by learners for each step.
-        :param budgets: superarm (list of budgets for each product).
+        :param budgets_per_class: in cases different than step 7 will be a superarm, in case of step 7 it will be an array of [user_classes],[superarm] elements
         :param observed_features: whether or not user features are observed. True only for step 7.
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization, the number of items sold to each user, activation status of each node for every visit,
          the feature values and the profit for the corresponding user category.
         """
+        #To keep old code functioning---
+        if observed_features==False:
+            #check
+            if len(budgets_per_class)!=5:
+                raise Exception("budgets_per_class is not the common superarm")
+            budgets_per_class=[[list(range(0,len(self.user_classes))),budgets_per_class]]
+        #-------------------------------
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
         for i, user_class in enumerate(self.user_classes):
+            budgets=[-1]
+            for cases in budgets_per_class:
+                if i in cases[0]:#Found the user_class into budgets_per_class
+                    budgets=cases[1]
+            if budgets[0]==-1:
+                raise Exception("A user is missing from budgets_per_class")
             n_users = np.random.poisson(user_class.avg_number)
             betas = user_class.get_alpha_from_budgets(budgets, self.t)
             betas[betas<0]=0
