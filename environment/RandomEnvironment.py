@@ -38,7 +38,7 @@ class RandomEnvironment():
     def round(self, budgets_per_class, observed_features=False):
         """ 
         Function returning the feedback from a round. It returns the data that may be required by learners for each step.
-        :param budgets_per_class: in cases different than step 7 will be a superarm, in case of step 7 it will be an array of [user_classes],[superarm] elements
+        :param budgets_per_class: in cases different than step 7 will be a superarm, in case of step 7 it will be an array of tuple ([user_classes],superarm) elements
         :param observed_features: whether or not user features are observed. True only for step 7.
         :return: list of dictionaries. Each element of the list contains the number of users,
          the alphas realization, the number of items sold to each user, activation status of each node for every visit,
@@ -49,7 +49,7 @@ class RandomEnvironment():
             #check
             if len(budgets_per_class)!=5:
                 raise Exception("budgets_per_class is not the common superarm")
-            budgets_per_class=[[list(range(0,len(self.user_classes))),budgets_per_class]]
+            budgets_per_class=([[list(range(0,len(self.user_classes))),budgets_per_class]])
         #-------------------------------
         category_realizations = [{} for _ in range(len(self.user_classes))]
         
