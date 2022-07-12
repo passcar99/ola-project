@@ -60,7 +60,7 @@ def clairvoyant(environment, arms, bounds, total_mass=100):
     for p in range(n_products):
         unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
     alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions()[0]])
-    alpha_functions = alpha_functions/100 #total_mass
+    alpha_functions = alpha_functions/environment.user_classes[0].total_mass #total_mass
     expected_margin = np.zeros((n_products))
     for p in range(n_products):
         expected_margin[p] = environment.simplified_round(p, n_sim = 100000)
