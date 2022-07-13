@@ -66,6 +66,8 @@ class ContextManager(Learner):
             for product in range(self.n_products): # TODO correct
                 user_data.pulled_arms[product].append(pulled_arms[user_context][1][product])
                 user_data.rewards_per_product[product].append(alphas[product+1])
+
+            user_data.n_users = (user_data.n_users * (self.t-1) + r["n_users"])/(self.t)  
             items_sold = r["items"]
             today_visits = items_sold.shape[0]
 
@@ -85,30 +87,31 @@ class ContextManager(Learner):
                 "profit": np.sum([r["profit"] for r in rewards_per_context[i]])
             }
             print(context_reward)
-            context.learner.avg_sold = self.avg_sold
+            context.learner.env.avg_sold = self.avg_sold
             context.learner.update(pulled_arms[i][1], context_reward) # IMPORTANT assume same order as played
-            """ learner.update
-            self.pulled_arms = [[] for _ in range(self.n_products)]
-            self.rewards_per_product = [[] for _ in range(self.n_products)]
-            self.n_users = n_users
-            self.items_sold = items_sold
-            self.user_data_contexts[reward.features]. 
-            
-            n_users, profit, alphas, items, 
-            
-            
-            """
+
         
     def update_model(self):
-        if self.t%2==0: # every two weeks
+        if self.t%2==0: # every two weeks TODO set to 14
             context_generation_alg = ContextGeneration(self.n_products, self.arms, self.margins, self.env, self.unfeasible_arms)
             grouped_classes = np.zeros((len(self.user_data_contexts)))
             context_generation_alg.compute_split(self.user_data_contexts.values(), [0, 1], grouped_classes)
             self.contexts = [] # discard old context structure
+            print(grouped_classes)
             for group in np.unique(grouped_classes):
+                context_learner = self.learner_type(self.arms, self.conpam_matrix, self.con_matrix, self.prob_buy, self.avg_sold, self.margins, self.bounds)
+                context_classes_ids = np.arange(4)[grouped_classes==group]
                 self.contexts.append(
-                    Context(np.arange(4)[grouped_classes==group], # only classes for identified group
-                    self.learner_type(self.arms, self.conpam_matrix, self.con_matrix, self.prob_buy, self.avg_sold, self.margins, self.bounds) ))
+                    Context(context_classes_ids, context_learner# only classes for identified group
+                     ))
+                avg_n_users = 0
+                for user_cat_id in context_classes_ids:
+                    user_cat = self.user_data_contexts[user_cat_id]
+                    avg_n_users += user_cat.n_users
+                    for product in range(self.n_products):
+                        context_learner.pulled_arms[product].extend(user_cat.pulled_arms[product])
+                        context_learner.rewards_per_product[product].extend(user_cat.rewards_per_product[product])
+                context_learner.avg_n_users = avg_n_users
 
     def update(self, pulled_arms, reward):
         self.t += 1
@@ -120,7 +123,7 @@ class ContextManager(Learner):
         value_matrix = np.vstack([context.learner.compute_value_matrix() for context in self.contexts])
         #user_classes = [context.feature_list for context in self.contexts]
         super_arm_shallow = budget_allocations(value_matrix, self.arms, True)[0]
-        print(super_arm_shallow)
+        print(value_matrix)
         super_arm = [(context.feature_list, super_arm_shallow[i*5:i*5+self.n_products]) for i, context in enumerate(self.contexts)]
         return super_arm
         

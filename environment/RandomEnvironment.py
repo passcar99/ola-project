@@ -51,28 +51,28 @@ class RandomEnvironment():
             budgets_per_class=([[list(range(0,len(self.user_classes))),budgets_per_class]])
         #-------------------------------
         category_realizations = [{} for _ in range(len(self.user_classes))]
-        
+        n_users = np.zeros((len(self.user_classes)), np.int32)
         for i, user_class in enumerate(self.user_classes):
+            n_users[i] = np.random.poisson(user_class.avg_number)
+            category_realizations[i]['n_users'] = n_users[i]
+        for cat_idx , user_category in enumerate(category_realizations):
             budgets=[-1]
             for cases in budgets_per_class:
-                if i in cases[0]:#Found the user_class into budgets_per_class
-                    budgets=cases[1]
+                if cat_idx in cases[0]:#Found the user_class into budgets_per_class
+                    budgets=cases[1]*n_users[cat_idx]/n_users[cases[0]].sum()
+                    print(budgets)
             if budgets[0]==-1:
                 raise Exception("A user is missing from budgets_per_class")
-            n_users = np.random.poisson(user_class.avg_number)
+            cusum = np.zeros((5))
+            items_sold = np.zeros((user_category['n_users'], 5))
+            activation_history = np.zeros((user_category['n_users'], 5))
             betas = user_class.get_alpha_from_budgets(budgets, self.t)
             betas[betas<0]=0
             non_zero_prods = np.nonzero(betas)
             alphas = stats.dirichlet.rvs(betas[non_zero_prods], size=1)[0]
             alphas_tilde = np.zeros((self.n_prods+1))
             alphas_tilde[non_zero_prods] = alphas
-            category_realizations[i]['n_users'] = n_users
-            category_realizations[i]['alphas'] = alphas_tilde # prolong Dirichlet to values of alpha_i ==0
-
-        for cat_idx , user_category in enumerate(category_realizations):
-            cusum = np.zeros((5))
-            items_sold = np.zeros((user_category['n_users'], 5))
-            activation_history = np.zeros((user_category['n_users'], 5))
+            user_category['alphas'] = alphas_tilde
             for i in tqdm(range(user_category['n_users']), leave=False):
                 landing_product = np.nonzero(np.random.multinomial(1, user_category['alphas']))[0][0]
                 if landing_product == 0: #competitor

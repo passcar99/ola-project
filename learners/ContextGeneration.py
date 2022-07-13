@@ -30,9 +30,8 @@ class ContextGeneration():
         for feature in features:
             values_after_split.append(self.evaluate_split(user_category_data, feature))
         maximum = np.max(values_after_split)
-        if maximum < value_before_split:
-            return grouped_classes
-        else:
+        print(maximum, value_before_split)
+        if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
             new_feature_list = features.remove(features[argmax])
             left_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==0]
@@ -41,9 +40,9 @@ class ContextGeneration():
             classes_id_right = [c.class_id for c in right_user_category_data]
             grouped_classes[classes_id_left] = np.max(grouped_classes)+1
             grouped_classes[classes_id_right]= np.max(grouped_classes)+1
-            print(left_user_category_data, right_user_category_data)
             self.compute_split(left_user_category_data, new_feature_list, grouped_classes) 
             self.compute_split(right_user_category_data, new_feature_list, grouped_classes)
+        
             
 
 
@@ -69,10 +68,7 @@ class ContextGeneration():
             for product in range(self.n_products):
                 pulled_arms[feature_value][product].extend(user_cat.pulled_arms[product])
                 rewards_per_product[feature_value][product].extend(user_cat.rewards_per_product[product])
-
         value_matrix = np.zeros((n_feature_values*self.n_products, len(self.arms)))
-        """ means =  np.array((n_feature_values*self.n_products, len(self.arms)))
-        sigmas = np.array((n_feature_values*self.n_products, len(self.arms))) """
         for i in range(n_feature_values): # for every feature value
             for product in range(self.n_products): # for every product
                 x = np.atleast_2d(pulled_arms[i][product])
@@ -81,10 +77,11 @@ class ContextGeneration():
                 self.gp.fit(x, y)
                 means, sigmas = self.gp.predict(self.arms.reshape(-1, 1), return_std = True)
                 means, sigmas= means.flatten(), sigmas.flatten()
-                lower_bounds = means - sigmas
+                lower_bounds = means #- sigmas
                 value_matrix[row] = lower_bounds* self.expected_margins[product] * n_users[i]
                 value_matrix[row, self.unfeasible_arms[product]] = -np.inf
 
+        print(value_matrix)
         value_after_split = budget_allocations(value_matrix, self.arms, subtract_budget=True)[1]
 
         return value_after_split

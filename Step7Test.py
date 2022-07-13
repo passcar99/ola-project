@@ -27,13 +27,13 @@ if __name__ == '__main__':
     margins = [30, 20, 30, 40, 50]
     conpam_matrix = [ 
         {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)], 
-        "features":0, "total_mass":100, "avg_number":100}, 
+        "features":0, "total_mass":100, "avg_number":25}, 
         {"alpha_params": [(0, 20, 20), (2, 15, 20),(2, 20, 20),(2, 10, 10),(1, 30, 10)], 
-        "features":1, "total_mass":100, "avg_number":100},
-        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 10)], 
-        "features":2, "total_mass":100, "avg_number":100},
-        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 10)], 
-        "features":3, "total_mass":100, "avg_number":100}]
+        "features":1, "total_mass":100, "avg_number":25},
+        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 20)], 
+        "features":2, "total_mass":100, "avg_number":25},
+        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 20)], 
+        "features":3, "total_mass":100, "avg_number":25}]
     arms = np.array([0, 5, 10, 15, 20, 25, 30])
     #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
     bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
@@ -59,8 +59,8 @@ if __name__ == '__main__':
         ts_learner = ContextManager(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy,  margins, bounds ,'fast', "TS")
         ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, margins, bounds ,'fast', "UCB")
 
-        ts_learner.avg_n_users = 100
-        ucb_learner.avg_n_users = 100
+        ts_learner.avg_n_users = 400
+        ucb_learner.avg_n_users = 400
 
         clairvoyant_rewards = []
 
