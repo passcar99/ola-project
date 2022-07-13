@@ -49,7 +49,7 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
     best_comb = np.argmax(solution_value[n_products])
     return solution[best_comb], solution_value[n_products, best_comb]
 
-def clairvoyant(environment, arms, bounds, total_mass=100):
+def clairvoyant(environment, arms, bounds, total_mass=100, phase=None):
     """ 
     Clairvoyant algorithm. Given an environment, a set of arms, per product bounds, get the best allocation of budgets to campaigns.
     """
@@ -59,7 +59,7 @@ def clairvoyant(environment, arms, bounds, total_mass=100):
     unfeasible_arms = []
     for p in range(n_products):
         unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
-    alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions()[0]])
+    alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions(phase)[0]])
     alpha_functions = alpha_functions/environment.user_classes[0].total_mass #total_mass
     expected_margin = np.zeros((n_products))
     for p in range(n_products):

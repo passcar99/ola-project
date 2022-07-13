@@ -73,10 +73,14 @@ class Environment():
         alphas[product+1 ]= 1
         return self.round(alphas)
 
-    def alpha_functions(self):
+    def alpha_functions(self, phase=None):
         alpha_functions = []
-        for user_cat in self.user_classes:
-            alpha_functions.append(user_cat.alpha_functions)
+        if phase is not None: 
+            for user_cat in self.user_classes:
+                alpha_functions.append(user_cat.alpha_functions[phase])
+        else:
+            for user_cat in self.user_classes:
+                alpha_functions.append(user_cat.alpha_functions)
         return alpha_functions
 
 

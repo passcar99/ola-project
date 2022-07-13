@@ -3,7 +3,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel as W
 from environment.Algorithms import budget_allocations
 from environment.Environment import Environment
-
+from copy import deepcopy
 
 class ContextGeneration():
 
@@ -33,25 +33,23 @@ class ContextGeneration():
         print(maximum, value_before_split)
         if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
-            new_feature_list = features.remove(features[argmax])
+            print(argmax)
             left_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==0]
             right_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==1]
             classes_id_left = [c.class_id for c in left_user_category_data]
             classes_id_right = [c.class_id for c in right_user_category_data]
             grouped_classes[classes_id_left] = np.max(grouped_classes)+1
             grouped_classes[classes_id_right]= np.max(grouped_classes)+1
-            self.compute_split(left_user_category_data, new_feature_list, grouped_classes) 
-            self.compute_split(right_user_category_data, new_feature_list, grouped_classes)
+            if len(features) > 1:
+                new_feature_list = deepcopy(features)
+                new_feature_list.remove(features[argmax])
+                self.compute_split(left_user_category_data, new_feature_list, grouped_classes)
+                new_feature_list = deepcopy(features)
+                new_feature_list.remove(features[argmax]) 
+                self.compute_split(right_user_category_data, new_feature_list, grouped_classes)
         
             
 
-
-
-    """ self.features = features # like [0, 0]
-        self.pulled_arms = [[] for _ in range(self.n_products)]
-        self.rewards_per_product = [[] for _ in range(self.n_products)]
-        self.n_users = n_users
-        self.items_sold = items_sold """
     # user_category_data List[UserDataContext]
     def evaluate_split(self, user_category_data, feature = -1):
         if feature == -1: # no split

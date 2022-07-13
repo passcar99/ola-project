@@ -9,33 +9,33 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
-
+import warnings
+warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step7"
 DISPLAY_FIGURE=True
 
 
 if __name__ == '__main__':
-    connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],
-                                    [0.5, 0, 0.1, 0.3, 0.1],
-                                    [0.3, 0.2, 0, 0.1, 0.4],
-                                    [0.13, 0.17, 0.30, 0, 0.4],
-                                    [0.16, 0.34, 0.15, 0.25, 0],
+    connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
+                                    [0.5, 0, 0, 0.8, 0],
+                                    [0.0, 0.0, 0.0, 0.6, 0.6],
+                                    [0.0, 0.0, 0.7, 0.0, 0.9],
+                                    [0.0, 0.0, 0.7, 0.9, 0],
                                     ])
-    prob_buy = np.array([0.5, 0.2, 0.5, 0.7, 0.7])
-    avg_sold = [6,10,5,5,6]
-    margins = [30, 20, 30, 40, 50]
+    prob_buy = np.array([0.8, 0.5, 0.9, 0.7, 0.3])
+    avg_sold = [2,4,1.5,2,3]
+    margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [ 
-        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)], 
+        {"alpha_params": [(0, 20, 10), (2, 20, 15),(0, 30, 100),(0, 30, 40),(0, 20, 30)], 
         "features":0, "total_mass":100, "avg_number":25}, 
-        {"alpha_params": [(0, 20, 20), (2, 15, 20),(2, 20, 20),(2, 10, 10),(1, 30, 10)], 
+        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 10, 20),(1, 30, 20)], 
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 20)], 
+        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(5, 20, 15),(5, 25, 20)], 
         "features":2, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 15, 20), (2, 10, 20),(2, 30, 20),(2, 10, 20),(1, 15, 20)], 
+        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(5, 20, 15),(5, 25, 20)], 
         "features":3, "total_mass":100, "avg_number":25}]
-    arms = np.array([0, 5, 10, 15, 20, 25, 30])
-    #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
+    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40])
     bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
