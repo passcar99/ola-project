@@ -12,7 +12,7 @@ class ContextGeneration():
         self.arms = arms
         self.margins = margins
         alpha = 1e-5 # 10 in prof code
-        kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3)) + W(1.0)
+        kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(
                     kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
                     ) # keep a reference to training data to avoid copying it every time
@@ -33,7 +33,6 @@ class ContextGeneration():
         print(maximum, value_before_split)
         if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
-            print(argmax)
             left_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==0]
             right_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==1]
             classes_id_left = [c.class_id for c in left_user_category_data]
@@ -41,6 +40,7 @@ class ContextGeneration():
             grouped_classes[classes_id_left] = np.max(grouped_classes)+1
             grouped_classes[classes_id_right]= np.max(grouped_classes)+1
             if len(features) > 1:
+                print(classes_id_left, classes_id_right)
                 new_feature_list = deepcopy(features)
                 new_feature_list.remove(features[argmax])
                 self.compute_split(left_user_category_data, new_feature_list, grouped_classes)
@@ -75,11 +75,10 @@ class ContextGeneration():
                 self.gp.fit(x, y)
                 means, sigmas = self.gp.predict(self.arms.reshape(-1, 1), return_std = True)
                 means, sigmas= means.flatten(), sigmas.flatten()
-                lower_bounds = means #- sigmas
+                lower_bounds = means - sigmas
                 value_matrix[row] = lower_bounds* self.expected_margins[product] * n_users[i]
                 value_matrix[row, self.unfeasible_arms[product]] = -np.inf
 
-        print(value_matrix)
         value_after_split = budget_allocations(value_matrix, self.arms, subtract_budget=True)[1]
 
         return value_after_split

@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 1
+    n_experiments = 2
 
     T = 50
 
@@ -59,8 +59,8 @@ if __name__ == '__main__':
         ts_learner = ContextManager(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy,  margins, bounds ,'fast', "TS")
         ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, margins, bounds ,'fast', "UCB")
 
-        ts_learner.avg_n_users = 400
-        ucb_learner.avg_n_users = 400
+        ts_learner.avg_n_users = 100
+        ucb_learner.avg_n_users = 100
 
         clairvoyant_rewards = []
 
