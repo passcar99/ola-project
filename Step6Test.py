@@ -185,7 +185,7 @@ if __name__ == '__main__':
     ex_reward_Clayr=np.zeros(T)
     ex_reward_Clayr[0:breakpoints[0]]=opt[0]
     for brk_idx in range(len(breakpoints)-1):
-        ex_reward_Clayr[breakpoints[i]:breakpoints[i+1]]=opt[i]
+        ex_reward_Clayr[breakpoints[brk_idx]:breakpoints[brk_idx+1]]=opt[brk_idx]
     ex_reward_Clayr[breakpoints[-1]:]=opt[-1]
 
     fig = plt.figure(1)
