@@ -50,6 +50,7 @@ class RandomEnvironment():
                 raise Exception("budgets_per_class is not the common superarm")
             budgets_per_class=([[list(range(0,len(self.user_classes))),budgets_per_class]])
         #-------------------------------
+        print(budgets_per_class)
         category_realizations = [{} for _ in range(len(self.user_classes))]
         n_users = np.zeros((len(self.user_classes)), np.int32)
         for i, user_class in enumerate(self.user_classes):
@@ -59,10 +60,10 @@ class RandomEnvironment():
             budgets=[-1]
             for cases in budgets_per_class:
                 if cat_idx in cases[0]:#Found the user_class into budgets_per_class
-                    budgets=cases[1]*n_users[cat_idx]/n_users[cases[0]].sum()
-                    print(budgets)
+                    budgets=np.array(cases[1])*n_users[cat_idx]/n_users[cases[0]].sum()
             if budgets[0]==-1:
                 raise Exception("A user is missing from budgets_per_class")
+            print(budgets)
             cusum = np.zeros((5))
             items_sold = np.zeros((user_category['n_users'], 5))
             activation_history = np.zeros((user_category['n_users'], 5))

@@ -49,23 +49,28 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
     best_comb = np.argmax(solution_value[n_products])
     return solution[best_comb], solution_value[n_products, best_comb]
 
-def clairvoyant(environment, arms, bounds, total_mass=100, phase=None):
+def clairvoyant(environment, arms, bounds, total_mass=100, phase=None, class_mask=[]):
     """ 
     Clairvoyant algorithm. Given an environment, a set of arms, per product bounds, get the best allocation of budgets to campaigns.
     """
     n_arms = len(arms)
     n_products = environment.n_prods
-    value_matrix = np.zeros((n_products, n_arms))
+    n_user_classes = len(environment.user_classes)
+    n_split_campaigns = (n_user_classes if len(class_mask)>0 else 1) # 1 if not discriminating, otherwise the number of classes
+    value_matrix = np.zeros((n_products * (len(np.unique(class_mask)) if len(np.unique(class_mask))>0 else 1), n_arms))
     unfeasible_arms = []
-    for p in range(n_products):
-        unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
-    alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions(phase)[0]])
-    alpha_functions = alpha_functions/environment.user_classes[0].total_mass #total_mass
     expected_margin = np.zeros((n_products))
     for p in range(n_products):
+        unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
         expected_margin[p] = environment.simplified_round(p, n_sim = 100000)
-        value_matrix[p, :] = alpha_functions[p, :]* expected_margin[p] *100 # n_users
-        value_matrix[p, unfeasible_arms[p]] = -np.inf
+    for split in range(n_split_campaigns):
+        alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions(phase)[split]])
+        alpha_functions = alpha_functions/environment.user_classes[split].total_mass #total_mass
+        for p in range(n_products):
+            row = (class_mask[split] if len(class_mask)>0 else 0)*n_products+p
+            value_matrix[row, :] += alpha_functions[p, :]* expected_margin[p] *environment.user_classes[split].avg_number
+            value_matrix[row, unfeasible_arms[p]] = -np.inf
+    print(value_matrix)
     return budget_allocations(value_matrix, arms, subtract_budget=True)
 
 if __name__=='__main__':

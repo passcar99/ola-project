@@ -31,19 +31,19 @@ if __name__ == '__main__':
         "features":0, "total_mass":100, "avg_number":25}, 
         {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 10, 20),(1, 30, 20)], 
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(5, 20, 15),(5, 25, 20)], 
+        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(4, 20, 15),(4, 25, 20)], 
         "features":2, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(5, 20, 15),(5, 25, 20)], 
+        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(4, 20, 15),(4, 25, 20)], 
         "features":3, "total_mass":100, "avg_number":25}]
-    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40])
+    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
     bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
-    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100)
-
+    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100, class_mask=[0, 1, 2, 2]) # last two classes are the same
+    print(optimal_alloc, opt)
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
 
@@ -51,13 +51,13 @@ if __name__ == '__main__':
 
     n_experiments = 2
 
-    T = 50
+    T = 100
 
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-        ts_learner = ContextManager(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy,  margins, bounds ,'fast', "TS")
-        ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, margins, bounds ,'fast', "UCB")
+        ts_learner = ContextManager(arms,  conpam_matrix, connectivity_matrix, prob_buy,  margins, bounds ,'fast', "TS")
+        ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix, prob_buy, margins, bounds ,'fast', "UCB")
 
         ts_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100

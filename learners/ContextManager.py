@@ -120,7 +120,6 @@ class ContextManager(Learner):
         value_matrix = np.vstack([context.learner.compute_value_matrix() for context in self.contexts])
         #user_classes = [context.feature_list for context in self.contexts]
         super_arm_shallow = budget_allocations(value_matrix, self.arms, True)[0]
-        print(value_matrix)
         super_arm = [(context.feature_list, super_arm_shallow[i*5:i*5+self.n_products]) for i, context in enumerate(self.contexts)]
         return super_arm
         
