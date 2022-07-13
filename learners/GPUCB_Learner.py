@@ -90,14 +90,17 @@ class GPUCB_Learner(Learner):
         self.update_observations(pulled_arm, reward)
         self.update_model()
         
-    def pull_arm(self):
+    def compute_value_matrix(self):
         upper_confidence_bounds = self.means + self.sigmas # first method 
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
             expected_margin = self.env.simplified_round(p, n_sim = 1000)
             value_matrix[p, :] = upper_confidence_bounds[p, :]* expected_margin * self.avg_n_users
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
-           
+        return value_matrix
+        
+    def pull_arm(self):
+        value_matrix = self.compute_value_matrix()
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
 
 

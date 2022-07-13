@@ -1,6 +1,5 @@
 import numpy as np
 from scipy import stats
-from scipy.interpolate import interp1d
 from tqdm import tqdm
 from .Environment import Environment
 from .UserCategory import UserCategory

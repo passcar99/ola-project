@@ -80,16 +80,21 @@ class GPTS_Learner(Learner):
         Sample the values of alphas and fill the DP table with alpha*margin*avg_n_users. Then run the bidding algorithm
         and select the optimal superarm.
         """
+        value_matrix = self.compute_value_matrix()
+        return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
+        
+    def compute_value_matrix(self):
         sampled_values = np.random.normal(self.means, self.sigmas)
         value_matrix = np.zeros((self.n_products, self.n_arms))
         for p in range(self.n_products):
             expected_margin = self.env.simplified_round(p, n_sim = 1000)
             value_matrix[p, :] = sampled_values[p, :]* expected_margin * self.avg_n_users
             value_matrix[p, self.unfeasible_arms[p]] = -np.inf
+        return value_matrix
         
+    def pull_arm(self):
+        value_matrix = self.compute_value_matrix()
         return budget_allocations(value_matrix, self.arms, subtract_budget=True)[0]
-        
-
 
 
 if __name__ == '__main__':
