@@ -27,8 +27,8 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [
-        {"alpha_params": [(5, 50, 10), (5, 40, 15),(0, 40, 100),(0, 50, 40),(0, 30, 30)], 
-        "features":[0, 0], "total_mass":100, "avg_number":100}, 
+        {"alpha_params": [(0, 30, 50*3), (0, 25, 5*3),(5, 20, 10*3),(5, 40, 15*3),(5, 25, 20*3)], 
+        "features":[0, 0], "total_mass":300, "avg_number":100}, 
                     ]
     arms = np.array([0, 5, 10, 15, 20, 25, 30])
     #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
@@ -54,9 +54,9 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 30
+    n_experiments = 5
 
-    T = 365
+    T = 100
 
 
     for e in tqdm(range(n_experiments)):
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
         #ucb_paper_rewards_per_experiment.append(ucb_learner_paper.collected_rewards)
-        tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
+        #tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
