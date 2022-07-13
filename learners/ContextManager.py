@@ -86,7 +86,6 @@ class ContextManager(Learner):
                 "alphas": np.sum(np.array([r["n_users"]*r["alphas"] for r in rewards_per_context[i]]), axis=0 )/n_users,
                 "profit": np.sum([r["profit"] for r in rewards_per_context[i]])
             }
-            print(context_reward)
             context.learner.env.avg_sold = self.avg_sold
             context.learner.update(pulled_arms[i][1], context_reward) # IMPORTANT assume same order as played
 
@@ -97,7 +96,7 @@ class ContextManager(Learner):
             grouped_classes = np.zeros((len(self.user_data_contexts)))
             context_generation_alg.compute_split(self.user_data_contexts.values(), [0, 1], grouped_classes)
             self.contexts = [] # discard old context structure
-            print(grouped_classes)
+            print( grouped_classes)
             for group in np.unique(grouped_classes):
                 context_learner = self.learner_type(self.arms, self.conpam_matrix, self.con_matrix, self.prob_buy, self.avg_sold, self.margins, self.bounds)
                 context_classes_ids = np.arange(4)[grouped_classes==group]
