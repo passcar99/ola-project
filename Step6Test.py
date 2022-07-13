@@ -30,15 +30,14 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
 
-    breakpoints = np.array([25])
+    breakpoints = np.array([100,250])
     conpam_matrix = [
         {"alpha_params": [
+                            [(5, 50, 5), (5, 40, 5),(0, 40, 50),(0, 50, 70),(0, 30, 15)],
                             [(5, 50, 10), (5, 40, 15),(0, 40, 100),(0, 50, 40),(0, 30, 30)],
-                            [(0, 30, 50), (0, 25, 5),(5, 20, 10),(5, 40, 15),(5, 25, 20)]
-                            #[(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)],
+                            [(0, 30, 50), (0, 25, 5),(5, 20, 10),(5, 40, 15),(5, 25, 20)],#Increase in tier1 prod
                             
-                            #[(0, 2, 20), (3, 10, 20),(0, 5, 20),(5, 17, 20),(2, 4, 20)]
-                         ], 
+                                                     ], 
         "features":[0, 0], "total_mass":100, "avg_number":100, "breakpoints":breakpoints} 
                     ]#Certainly will vary
     arms = np.array([0, 5, 10, 15, 20, 25, 30])
@@ -107,7 +106,7 @@ if __name__ == '__main__':
     ucb_sliding_rewards_per_experiment = []
     n_experiments = 1
 
-    T = 70
+    T = 365
 
     regret_ucb=np.zeros(T+1)
     regret_ucb_detecting=np.zeros(T+1)
