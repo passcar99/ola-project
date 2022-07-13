@@ -9,6 +9,8 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
+import warnings
+warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step3"
 DISPLAY_FIGURE=True
@@ -25,7 +27,7 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [
-        {"alpha_params": [(20, 30, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)], 
+        {"alpha_params": [(5, 50, 10), (5, 40, 15),(0, 40, 100),(0, 50, 40),(0, 30, 30)], 
         "features":[0, 0], "total_mass":100, "avg_number":100}, 
                     ]
     arms = np.array([0, 5, 10, 15, 20, 25, 30])
@@ -52,9 +54,9 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 5
+    n_experiments = 30
 
-    T = 200
+    T = 365
 
 
     for e in tqdm(range(n_experiments)):
@@ -67,6 +69,7 @@ if __name__ == '__main__':
         tsTOP5D_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
         clairvoyant_rewards = [opt]*T
+        print("Experiment: " + str(e))
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             #pulled_arm_5D = tsTOP5D_learner.pull_arm()
