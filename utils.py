@@ -49,7 +49,7 @@ def plot_and_save_rewards(rewards_list, clairvoyant_rewards, learner_name_list, 
         cum_reg = np.cumsum(clairvoyant_rewards_per_experiment-np.array(learner_rewards), axis = 1)
         mean = cum_reg.mean(axis=0)
         std = cum_reg.std(axis=0)
-        z_sqrt_n = 1.96 * np.sqrt(len(cum_reg))
+        z_sqrt_n = 1.96 / np.sqrt(len(cum_reg))
         p = plt.plot(np.arange(0, T), mean, colors[i])
         plt.fill_between(np.arange(0, T), mean-z_sqrt_n *std,mean+z_sqrt_n *std, alpha=0.7, color=colors[i])
         plot_list.append(p[0])
