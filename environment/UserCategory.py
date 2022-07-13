@@ -18,7 +18,7 @@ class UserCategory():
     """
     def __init__(self, alpha_params: List[Tuple], features: List, total_mass, avg_number, breakpoints:List = None) -> None:
         self.alpha_functions = []
-        if breakpoints.any() == None:
+        if breakpoints is None:
             for tuple in alpha_params:
                 self.alpha_functions.append(self.alpha_function(*tuple))
             self.breakpoints = None
