@@ -4,6 +4,7 @@ from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKern
 from environment.Algorithms import budget_allocations
 from environment.Environment import Environment
 from copy import deepcopy
+from scipy.interpolate import interp1d
 
 class ContextGeneration():
 
@@ -11,11 +12,6 @@ class ContextGeneration():
         self.n_products = n_products
         self.arms = arms
         self.margins = margins
-        alpha = 1e-5 # 10 in prof code
-        kernel = C(1.0, (1e-3, 1e3))*RBF(1.0, (1e-3, 1e3))
-        self.gp = GaussianProcessRegressor(
-                    kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
-                    ) # keep a reference to training data to avoid copying it every time
         self.env = environment
         self.expected_margins = np.zeros((self.n_products))
         self.unfeasible_arms = unfeasible_arms
@@ -69,13 +65,21 @@ class ContextGeneration():
         value_matrix = np.zeros((n_feature_values*self.n_products, len(self.arms)))
         for i in range(n_feature_values): # for every feature value
             for product in range(self.n_products): # for every product
-                x = np.atleast_2d(pulled_arms[i][product])
-                y = rewards_per_product[i][product]
+                unique_values_and_counts = np.unique(pulled_arms[i][product], return_counts=True)
+                T = len(pulled_arms[i][product])
+                confidence = np.sqrt(-np.log(0.95)/unique_values_and_counts[1]/2) # confidence=0.95
+                x = np.array(pulled_arms[i][product]).flatten()
+                y = np.array(rewards_per_product[i][product])
+                means = np.hstack([np.mean(y[x==v]) for v in unique_values_and_counts[0].tolist()])
+                bounds = means-confidence
                 row = i*self.n_products+product
-                self.gp.fit(x, y)
-                means, sigmas = self.gp.predict(self.arms.reshape(-1, 1), return_std = True)
-                means, sigmas= means.flatten(), sigmas.flatten()
-                lower_bounds = means - sigmas
+                if(len(unique_values_and_counts[0]) >1):
+                    fun = interp1d(unique_values_and_counts[0], means-confidence, bounds_error=False, fill_value=(bounds[0], bounds[-1]))
+                    lower_bounds = fun(self.arms)
+                else:
+                    lower_bounds = bounds # everything gets the same value
+                print("***->", lower_bounds)
+                
                 value_matrix[row] = lower_bounds* self.expected_margins[product] * n_users[i]
                 value_matrix[row, self.unfeasible_arms[product]] = -np.inf
 

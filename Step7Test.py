@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 2
+    n_experiments = 1
 
     T = 100
 

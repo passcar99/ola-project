@@ -37,7 +37,7 @@ class GPTS_Learner(Learner):
         self.gps = []
         for _ in range(self.n_products):
             alpha = 1e-5 # 10 in prof code
-            kernel = C(1.0, (1e-5, 1e3))*RBF(1.0, (1e-5, 1e3)) + W(1.0)
+            kernel = C(1.0, (1e-5, 1e3))*RBF(1.0, (1e-5, 1e3)) #+ W(1.0)
             self.gps.append(
                 GaussianProcessRegressor(
                     kernel=kernel, alpha=alpha, normalize_y=True, n_restarts_optimizer=10, copy_X_train=False
@@ -67,7 +67,7 @@ class GPTS_Learner(Learner):
             gp.fit(x, y)
             means, sigmas = gp.predict(self.arms.reshape(-1, 1), return_std = True)
             self.means[product], self.sigmas[product] = means.flatten(), sigmas.flatten()
-            self.sigmas[product] = np.maximum(self.sigmas[product], 1e-10)
+            #self.sigmas[product] = np.maximum(self.sigmas[product], 1e-10)
             
 
     def update(self, pulled_arm, reward):
