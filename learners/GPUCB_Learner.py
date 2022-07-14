@@ -54,7 +54,7 @@ class GPUCB_Learner(Learner):
             #    self.last_change=len(self.pulled_arms[product])
             #    print("#########OOOLD Change detected at T="+str(self.last_change))
         Standardized_5D_sample_norm = np.linalg.norm(Standard5DNoarmal_Sample)
-        print("Standardized 5D sample norm "+ self.method +": "+str(Standardized_5D_sample_norm))
+        #print("Standardized 5D sample norm "+ self.method +": "+str(Standardized_5D_sample_norm))
         if (Standardized_5D_sample_norm>3.88411 and self.method=="detect" and (len(self.pulled_arms[product])-self.last_change)>=10):#1.95 is Z_95 2.57 is circa Z_99 and 0.99^5=(circa)0.95
                 self.last_change=len(self.pulled_arms[product])
                 print("#########Change detected at T="+str(self.last_change)+" Norm Standardized 5D Sample:"+str(Standardized_5D_sample_norm))

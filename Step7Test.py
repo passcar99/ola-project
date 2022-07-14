@@ -43,6 +43,7 @@ if __name__ == '__main__':
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
     optimal_alloc, opt = clairvoyant(env, arms, bounds, 100, class_mask=[0, 1, 2, 2]) # last two classes are the same
+    print("OPTIMAL ALLOCATION AND VALUE")
     print(optimal_alloc, opt)
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
