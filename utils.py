@@ -53,7 +53,6 @@ def plot_and_save_rewards(rewards_list, clairvoyant_rewards, learner_name_list, 
         p = plt.plot(np.arange(0, T), mean, colors[i])
         plt.fill_between(np.arange(0, T), mean-z_sqrt_n*std,mean+z_sqrt_n *std, alpha=0.7, color=colors[i])
         plot_list.append(p[0])
-    print(plot_list)
     plt.legend(plot_list, learner_name_list)
     file_name = 'backup/'+experiment_name+'_rewards.png'
     plt.savefig(fname=file_name)

@@ -26,7 +26,6 @@ class ContextGeneration():
         for feature in features:
             values_after_split.append(self.evaluate_split(user_category_data, feature))
         maximum = np.max(values_after_split)
-        print(maximum, value_before_split)
         if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
             left_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==0]
@@ -36,7 +35,6 @@ class ContextGeneration():
             grouped_classes[classes_id_left] = np.max(grouped_classes)+1
             grouped_classes[classes_id_right]= np.max(grouped_classes)+1
             if len(features) > 1:
-                print(classes_id_left, classes_id_right)
                 new_feature_list = deepcopy(features)
                 new_feature_list.remove(features[argmax])
                 self.compute_split(left_user_category_data, new_feature_list, grouped_classes)
@@ -78,7 +76,6 @@ class ContextGeneration():
                     lower_bounds = fun(self.arms)
                 else:
                     lower_bounds = bounds # everything gets the same value
-                print("***->", lower_bounds)
                 
                 value_matrix[row] = lower_bounds* self.expected_margins[product] * n_users[i]
                 value_matrix[row, self.unfeasible_arms[product]] = -np.inf
