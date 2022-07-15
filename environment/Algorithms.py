@@ -59,18 +59,23 @@ def clairvoyant(environment, arms, bounds, total_mass=100, phase=None, class_mas
     n_split_campaigns = (n_user_classes if len(class_mask)>0 else 1) # 1 if not discriminating, otherwise the number of classes
     value_matrix = np.zeros((n_products * (len(np.unique(class_mask)) if len(np.unique(class_mask))>0 else 1), n_arms))
     unfeasible_arms = []
+    class_mask = np.array(class_mask)
     expected_margin = np.zeros((n_products))
     for p in range(n_products):
         unfeasible_arms.append(np.logical_or(arms <= bounds[p][0], arms >= bounds[p][1]))
         expected_margin[p] = environment.simplified_round(p, n_sim = 100000)
     for split in range(n_split_campaigns):
-        alpha_functions = np.array([ fun(arms) for fun in environment.alpha_functions(phase)[split]])
-        alpha_functions = alpha_functions/environment.user_classes[split].total_mass #total_mass
+        user_class = environment.user_classes[split]
+        factor = 1
+        if len(class_mask) > 0:
+            tot_users = np.sum([u_class.avg_number for i, u_class in enumerate(environment.user_classes) if class_mask[i] == class_mask[split]])
+            factor = user_class.avg_number/tot_users
+        alpha_functions = np.array([ fun(arms * factor) for fun in environment.alpha_functions(phase)[split]])
+        alpha_functions = alpha_functions/user_class.total_mass #total_mass
         for p in range(n_products):
             row = (class_mask[split] if len(class_mask)>0 else 0)*n_products+p
             value_matrix[row, :] += alpha_functions[p, :]* expected_margin[p] *environment.user_classes[split].avg_number
             value_matrix[row, unfeasible_arms[p]] = -np.inf
-    print(value_matrix)
     return budget_allocations(value_matrix, arms, subtract_budget=True)
 
 if __name__=='__main__':
