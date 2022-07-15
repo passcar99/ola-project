@@ -28,16 +28,16 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [ 
-        {"alpha_params": [(0, 20, 10), (2, 20, 15),(0, 30, 100),(0, 30, 40),(0, 20, 30)], 
+        {"alpha_params": [(0, 20, 10), (2, 20, 15),(0, 30, 100),(0, 30, 40),(0, 20, 30)], #Private Rich
         "features":0, "total_mass":100, "avg_number":25}, 
-        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 10, 20),(1, 30, 20)], 
+        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 10, 20),(1, 30, 20)], #Private Poor
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(4, 20, 15),(4, 25, 20)], 
+        {"alpha_params": [(0, 30, 100), (0, 30, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
         "features":2, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(4, 20, 15),(4, 25, 20)], 
+        {"alpha_params": [(0, 30, 100), (0, 30, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Poor
         "features":3, "total_mass":100, "avg_number":25}]
-    arms = np.array([0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40, 42.5, 45, 47.5,50])
-    bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
+    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+    bounds = np.array([[-2, 100],[-2, 100],[-1, 100],[-2, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     n_experiments = 1
 
-    T = 45
+    T = 43
 
 
     for e in tqdm(range(n_experiments)):
