@@ -106,10 +106,11 @@ class ContextManager(Learner):
                     user_cat = self.user_data_contexts[user_cat_id]
                     user_cat.context_id = len(self.contexts)-1
                     avg_n_users += user_cat.n_users
-                    for product in range(self.n_products):
-                        context_learner.pulled_arms[product].extend(user_cat.pulled_arms[product])
-                        context_learner.rewards_per_product[product].extend(user_cat.rewards_per_product[product])
+                for product in range(self.n_products):
+                    context_learner.pulled_arms[product].extend(np.sum([self.user_data_contexts[user_cat_id].pulled_arms[product] for user_cat_id in context_classes_ids], axis=0))
+                    context_learner.rewards_per_product[product].extend(np.sum([np.array(self.user_data_contexts[user_cat_id].rewards_per_product[product]) * self.user_data_contexts[user_cat_id].n_users/avg_n_users for user_cat_id in context_classes_ids], axis=0))
                 context_learner.avg_n_users = avg_n_users
+                context_learner.update_model()
 
     def update(self, pulled_arms, reward):
         self.t += 1
