@@ -9,11 +9,46 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
 import warnings
 warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step3"
-DISPLAY_FIGURE=False
+DISPLAY_FIGURE=True
+
+
+def experiment(e, pbar=None):
+    env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+    ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+    ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+    ts_learner.avg_n_users = 100
+    ucb_learner.avg_n_users = 100
+    clairvoyant_rewards = [opt]*T
+    print("Experiment: " + str(e))
+    for t in tqdm(range(0, T)):
+        pulled_arm_ts = ts_learner.pull_arm()
+            #pulled_arm_5D = tsTOP5D_learner.pull_arm()
+        pulled_arm_ucb = ucb_learner.pull_arm()
+            #pulled_arm_ucb_paper = ucb_learner_paper.pull_arm()
+
+        reward_ts = env.round(pulled_arm_ts)
+            #reward_5D = env.round(pulled_arm_5D)
+        reward_ucb = env.round(pulled_arm_ucb)
+            #reward_ucb_paper = env.round(pulled_arm_ucb_paper)
+            
+        ts_learner.update(pulled_arm_ts, reward_ts[0])
+            #tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
+        ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            #ucb_learner_paper.update(pulled_arm_ucb_paper, reward_ucb_paper[0])
+
+    ts_rewards_per_experiment.append(ts_learner.collected_rewards)
+    ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        #ucb_paper_rewards_per_experiment.append(ucb_learner_paper.collected_rewards)
+        #tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
+
+    clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
+    #pbar.update(1)
 
 if __name__ == '__main__':
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -54,51 +89,18 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 15
+    n_experiments = 3
 
-    T = 365
+    T = 50
 
 
-    for e in tqdm(range(n_experiments)):
-        env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-        ts_learner = GPTS_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
-        tsTOP5D_learner = GPTS_Learner_TOP5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
-        ucb_learner = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
-        #ucb_learner_paper = GPUCB_Learner(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast', 'paper')
-        ts_learner.avg_n_users = 100
-        tsTOP5D_learner.avg_n_users = 100
-        ucb_learner.avg_n_users = 100
-        clairvoyant_rewards = [opt]*T
-        print("Experiment: " + str(e))
-        for t in tqdm(range(0, T)):
-            pulled_arm_ts = ts_learner.pull_arm()
-            #pulled_arm_5D = tsTOP5D_learner.pull_arm()
-            pulled_arm_ucb = ucb_learner.pull_arm()
-            #pulled_arm_ucb_paper = ucb_learner_paper.pull_arm()
+    with tqdm(range(0, n_experiments)) as pbar:
+        with ProcessPoolExecutor(max_workers=4) as ex:
+            for e in range(0, n_experiments):
+                ex.submit(experiment(e))
 
-            reward_ts = env.round(pulled_arm_ts)
-            #reward_5D = env.round(pulled_arm_5D)
-            reward_ucb = env.round(pulled_arm_ucb)
-            #reward_ucb_paper = env.round(pulled_arm_ucb_paper)
-            
-            ts_learner.update(pulled_arm_ts, reward_ts[0])
-            #tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
-            ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
-            #ucb_learner_paper.update(pulled_arm_ucb_paper, reward_ucb_paper[0])
-            
-            plot_gaussian_process(ts_learner)
-
-        print(ts_learner.collected_rewards, opt)
-        ts_rewards_per_experiment.append(ts_learner.collected_rewards)
-        ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
-        #ucb_paper_rewards_per_experiment.append(ucb_learner_paper.collected_rewards)
-        #tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
-
-        clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
-    import datetime
-    now = '-'+str(datetime.datetime.now())
-    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
-    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, "TSLearner", -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, "UCBLearner", -1)
     print(optimal_alloc, opt)
     plot_and_save_rewards([ts_rewards_per_experiment, 
                             #tsTOP5D_rewards_per_experiment, 

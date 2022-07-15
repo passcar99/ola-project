@@ -15,7 +15,7 @@ class Learner():
         :param bounds: lower and upper bounds for each product (n_products*2 matrix).
         :param environment_type: type of environment to use to estimate the expected margin.
         """
-        self.arms = arms
+        self.arms = np.array(arms)
         self.n_products = len(margins)
         self.n_arms = len(arms)
         self.t = 0

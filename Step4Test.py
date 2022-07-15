@@ -7,9 +7,10 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import save_rewards, plot_and_save_rewards
+import datetime
 
 EXPERIMENT_NAME = "Step4"
-DISPLAY_FIGURE=True
+DISPLAY_FIGURE=False
 
 
 
@@ -43,9 +44,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 30
+    n_experiments = 10
 
-    T = 100
+    T = 365
 
 
     for e in tqdm(range(n_experiments)):
@@ -73,10 +74,15 @@ if __name__ == '__main__':
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
+        if e%4==0:
+            now = '-'+str(datetime.datetime.now())
+            save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+            save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
-
-    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
-    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    now = '-'+str(datetime.datetime.now())
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
+    
     print(optimal_alloc, opt)
     
     plot_and_save_rewards([ts_rewards_per_experiment, ucb_rewards_per_experiment],

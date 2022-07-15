@@ -10,6 +10,7 @@ import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 import warnings
+import datetime
 warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step7"
@@ -88,8 +89,9 @@ if __name__ == '__main__':
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
-    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
-    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    now = '-'+str(datetime.datetime.now())
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
     #print(optimal_alloc, opt)
 
