@@ -28,13 +28,13 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [ 
-        {"alpha_params": [(0, 20, 10), (2, 20, 15),(0, 30, 100),(0, 30, 40),(0, 20, 30)], #Private Rich
+        {"alpha_params": [(10, 50, 10), (5, 30, 15),(0, 50, 100),(0, 50, 100),(0, 40, 100)], #Private Rich
         "features":0, "total_mass":100, "avg_number":25}, 
-        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 10, 20),(1, 30, 20)], #Private Poor
+        {"alpha_params": [(15, 50, 10), (10, 30, 15),(0, 50, 50),(2, 50, 50),(1, 40, 50)], #Private Poor
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 30, 100), (0, 30, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
+        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
         "features":2, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 30, 100), (0, 30, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Poor
+        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 40, 7),(8, 40, 10),(10, 50, 5)], #Company Poor
         "features":3, "total_mass":100, "avg_number":25}]
     arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
     bounds = np.array([[-2, 100],[-2, 100],[-1, 100],[-2, 100],[-1, 100]])
@@ -44,8 +44,9 @@ if __name__ == '__main__':
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
     optimal_alloc, opt = clairvoyant(env, arms, bounds, 100, class_mask=[0, 1, 2, 2]) # last two classes are the same
-    print("OPTIMAL ALLOCATION AND VALUE")
+    print("OPTIMAL ALLOCATION AND VALUE--")
     print(optimal_alloc, opt)
+    print("------------------------------")
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
 
@@ -81,7 +82,7 @@ if __name__ == '__main__':
             ucb_learner.update(pulled_arm_ucb, reward_ucb)
 
             
-        print(ts_learner.collected_rewards, opt)
+        #print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
 
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
     save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
-    print(optimal_alloc, opt)
+    #print(optimal_alloc, opt)
 
     plot_and_save_rewards([ts_rewards_per_experiment, ucb_rewards_per_experiment],
                         clairvoyant_rewards_per_experiment, ["TS",  "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
