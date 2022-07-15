@@ -84,7 +84,7 @@ class ContextManager(Learner):
                 "profit": np.sum([r["profit"] for r in rewards_per_context[context_id]])
             }
             context.learner.env.avg_sold = self.avg_sold
-            context.learner.update(pulled_arms[context_id][1], context_reward) # IMPORTANT assume same order as played
+            context.learner.update(np.array(pulled_arms[context_id][1]), context_reward) # IMPORTANT assume same order as played
 
         
     def update_model(self):

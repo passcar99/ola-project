@@ -10,6 +10,7 @@ import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 import warnings
+import datetime
 warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step7"
@@ -35,7 +36,7 @@ if __name__ == '__main__':
         "features":2, "total_mass":100, "avg_number":25},
         {"alpha_params": [(0, 25, 50), (0, 25, 5),(5, 20, 10),(4, 20, 15),(4, 25, 20)], 
         "features":3, "total_mass":100, "avg_number":25}]
-    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+    arms = np.array([0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 40, 42.5, 45, 47.5,50])
     bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
 
     env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
@@ -52,7 +53,7 @@ if __name__ == '__main__':
 
     n_experiments = 1
 
-    T = 100
+    T = 45
 
 
     for e in tqdm(range(n_experiments)):
@@ -87,8 +88,9 @@ if __name__ == '__main__':
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
 
-    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
-    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    now = '-'+str(datetime.datetime.now())
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
     print(optimal_alloc, opt)
 

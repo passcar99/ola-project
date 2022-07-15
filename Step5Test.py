@@ -8,10 +8,10 @@ from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
-
+import datetime
 
 EXPERIMENT_NAME = "Step5"
-DISPLAY_FIGURE=True
+DISPLAY_FIGURE=False
 
 
 if __name__ == '__main__':
@@ -44,42 +44,39 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 1
+    n_experiments = 10
 
-    T = 50
+    T = 365
 
 
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ts_learner = GPTS_Learner5(arms,  conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
         ucb_learner = GPUCB_Learner5(arms, conpam_matrix, connectivity_matrix!=0.0, prob_buy, avg_sold, margins, bounds ,'fast')
-        tsTOP5D_learner = GPTS_Learner5Topped5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
+        #tsTOP5D_learner = GPTS_Learner5Topped5D(arms, conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins, bounds ,'fast')
 
         ts_learner.avg_n_users = 100
         ucb_learner.avg_n_users = 100
-        tsTOP5D_learner.avg_n_users = 100
+        #tsTOP5D_learner.avg_n_users = 100
 
         clairvoyant_rewards = []
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             pulled_arm_ucb = ucb_learner.pull_arm()
-            pulled_arm_5D = tsTOP5D_learner.pull_arm()
+            #pulled_arm_5D = tsTOP5D_learner.pull_arm()
 
 
             reward_ts = env.round(pulled_arm_ts)
             reward_ucb = env.round(pulled_arm_ucb)
-            reward_5D = env.round(pulled_arm_5D)
+            #reward_5D = env.round(pulled_arm_5D)
 
             
             clairvoyant_rewards.append(opt)
 
             ts_learner.update(pulled_arm_ts, reward_ts[0])
             ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
-            tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
-
-            
-            plot_gaussian_process(ts_learner)
+            #tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
 
         print(ts_learner.con_matrix)
 
@@ -87,18 +84,27 @@ if __name__ == '__main__':
         print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
-        tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
+        #tsTOP5D_rewards_per_experiment.append(tsTOP5D_learner.collected_rewards)
 
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
+        if e%4==0:
+            now = '-'+str(datetime.datetime.now())
+            save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+            save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
-    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME, ts_learner.NAME, -1)
-    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
+    now = '-'+str(datetime.datetime.now())
+    save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+    save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
     print(optimal_alloc, opt)
 
-    plot_and_save_rewards([ts_rewards_per_experiment, tsTOP5D_rewards_per_experiment, ucb_rewards_per_experiment],
-                        clairvoyant_rewards_per_experiment, ["TS", "TSTOP5D", "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
+    plot_and_save_rewards([ts_rewards_per_experiment, 
+    #tsTOP5D_rewards_per_experiment, 
+    ucb_rewards_per_experiment],
+                        clairvoyant_rewards_per_experiment, ["TS", 
+                        #"TSTOP5D", 
+                        "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)
     plt.ylabel("Reward")
