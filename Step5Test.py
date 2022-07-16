@@ -9,6 +9,8 @@ import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_regrets
 import datetime
+import warnings
+warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step5"
 DISPLAY_FIGURE=False
@@ -45,7 +47,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 30
+    n_experiments = 10
 
     T = 100
 
