@@ -52,9 +52,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 2
+    n_experiments = 10
 
-    T = 50
+    T = 360
 
 
     for e in tqdm(range(n_experiments)):

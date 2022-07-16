@@ -30,7 +30,7 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
 
-    breakpoints = np.array([100,170])
+    breakpoints = np.array([120,204])
     conpam_matrix = [
         {"alpha_params": [
                             [(5, 50, 5), (5, 40, 5),(0, 40, 50),(0, 50, 70),(0, 30, 15)],
@@ -115,17 +115,17 @@ if __name__ == '__main__':
     ex_ucb_detecting_rewards_per_experiment = []
     ex_ucb_sliding_rewards_per_experiment = []
     
-    n_experiments = 5
+    n_experiments = 10
 
-    T = 300
+    T = 360
 
     regret_ucb=np.zeros(T+1)
     regret_ucb_detecting=np.zeros(T+1)
     regret_ucb_sliding=np.zeros(T+1)
 
-    ex_reward_ucb=np.zeros(T)
-    ex_reward_ucb_detecting=np.zeros(T)
-    ex_reward_ucb_sliding=np.zeros(T)
+    ex_reward_ucb=[]
+    ex_reward_ucb_detecting=[]
+    ex_reward_ucb_sliding=[]
 
 
     for e in tqdm(range(n_experiments)):
@@ -138,6 +138,11 @@ if __name__ == '__main__':
         ucb_learner.avg_n_users = 100
         ucb_learner_detecting.avg_n_users = 100
         ucb_learner_sliding.avg_n_users = 100
+
+        ex_reward_ucb=[]
+        ex_reward_ucb_detecting=[]
+        ex_reward_ucb_sliding=[]
+
         for t in tqdm(range(0, T)):
             #pulled_arm_ucb = ucb_learner.pull_arm()
             pulled_arm_detecting = ucb_learner_detecting.pull_arm()
@@ -164,8 +169,8 @@ if __name__ == '__main__':
             regret_ucb_sliding[t+1]=regret_ucb_sliding[t]+opt[phase]-Clayrvoiant[number_ucb_sliding][phase]
 
             #ex_reward_ucb[t]=Clayrvoiant[number_ucb][phase]
-            ex_reward_ucb_detecting[t]=Clayrvoiant[number_detecting][phase]
-            ex_reward_ucb_sliding[t]=Clayrvoiant[number_ucb_sliding][phase]
+            ex_reward_ucb_detecting.append(Clayrvoiant[number_detecting][phase])
+            ex_reward_ucb_sliding.append(Clayrvoiant[number_ucb_sliding][phase])
 
             #reward_ucb = env_ucb.round(pulled_arm_ucb)
             reward_ucb_detecting = env_ucb_detecting.round(pulled_arm_detecting)
@@ -174,6 +179,7 @@ if __name__ == '__main__':
             #ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
             ucb_learner_detecting.update(pulled_arm_detecting, reward_ucb_detecting[0])
             ucb_learner_sliding.update(pulled_arm_ucb_sliding, reward_ucb_sliding[0])
+
 
             #plot_gaussian_process(ucb_learner_detecting)
 
@@ -215,7 +221,8 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, T), np.mean(ex_ucb_detecting_rewards_per_experiment, axis = 0), 'b')
     plt.plot(np.arange(0, T), np.mean(ex_ucb_sliding_rewards_per_experiment, axis = 0), 'g')
     plt.plot(np.arange(0, T), ex_reward_Clayr, 'c')
-    plt.legend(["UCB vanilla", "UCB detecting", "UCB sliding","Clayr"])
+    plt.legend([#"UCB vanilla",
+     "UCB detecting", "UCB sliding","Clayr"])
 
     plot_and_save_regrets([#ucb_rewards_per_experiment,
         ucb_detecting_rewards_per_experiment,ucb_sliding_rewards_per_experiment],

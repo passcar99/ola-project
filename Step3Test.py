@@ -54,9 +54,9 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 5
+    n_experiments = 15
 
-    T = 100
+    T = 160
 
 
     for e in tqdm(range(n_experiments)):
