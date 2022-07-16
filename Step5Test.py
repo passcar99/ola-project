@@ -9,6 +9,8 @@ import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
 from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
 import datetime
+import warnings
+warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step5"
 DISPLAY_FIGURE=False
