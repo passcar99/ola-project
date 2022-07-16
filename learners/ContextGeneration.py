@@ -26,6 +26,7 @@ class ContextGeneration():
         for feature in features:
             values_after_split.append(self.evaluate_split(user_category_data, feature))
         maximum = np.max(values_after_split)
+        print(maximum, value_before_split)
         if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
             left_user_category_data = [ cat_data for cat_data in user_category_data if cat_data.features[argmax]==0]

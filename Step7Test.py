@@ -37,9 +37,9 @@ if __name__ == '__main__':
         {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 40, 7),(8, 40, 10),(10, 50, 5)], #Company Poor
         "features":3, "total_mass":100, "avg_number":25}]
     arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-    bounds = np.array([[1, 100],[-2, 100],[-1, 100],[1, 100],[-1, 100]])
+    bounds = np.array([[-1, 100],[-2, 100],[-1, 100],[-1, 100],[-1, 100]])
 
-    env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
+    env = Environment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
@@ -86,6 +86,10 @@ if __name__ == '__main__':
         #print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        if e%4==0:
+            now = '-'+str(datetime.datetime.now())
+            save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME, -1)
+            save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME+now, ucb_learner.NAME, -1)
 
 
         clairvoyant_rewards_per_experiment.append(clairvoyant_rewards)
