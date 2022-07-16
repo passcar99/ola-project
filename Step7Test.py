@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     n_experiments = 1
 
-    T = 43
+    T = 100
 
 
     for e in tqdm(range(n_experiments)):
@@ -69,6 +69,7 @@ if __name__ == '__main__':
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
+            print(pulled_arm_ts)
             pulled_arm_ucb = ucb_learner.pull_arm()
 
 

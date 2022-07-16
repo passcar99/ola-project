@@ -15,18 +15,19 @@ DISPLAY_FIGURE=False
 
 
 if __name__ == '__main__':
-    connectivity_matrix = np.array([[0, 0.2, 0.4, 0.3, 0.1],
-                                    [0.5, 0, 0.1, 0.3, 0.1],
-                                    [0.3, 0.2, 0, 0.1, 0.4],
-                                    [0.13, 0.17, 0.30, 0, 0.4],
-                                    [0.16, 0.34, 0.15, 0.25, 0],
+    connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
+                                    [0.5, 0, 0, 0.8, 0],
+                                    [0.0, 0.0, 0.0, 0.6, 0.6],
+                                    [0.0, 0.0, 0.7, 0.0, 0.9],
+                                    [0.0, 0.0, 0.7, 0.9, 0],
                                     ])
-    prob_buy = np.array([0.5, 0.2, 0.5, 0.7, 0.7])
-    avg_sold = [6,10,5,5,6]
-    margins = [30, 20, 30, 40, 50]
+    prob_buy = np.array([0.8, 0.5, 0.9, 0.7, 0.3])
+    #prob_buy = np.array([1, 1, 1, 1, 1])
+    avg_sold = [2,4,1.5,2,3]
+    margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [
-        {"alpha_params": [(0, 10, 20), (2, 15, 20),(2, 20, 20),(2, 15, 20),(1, 15, 20)], 
-        "features":[0, 0], "total_mass":100, "avg_number":100}, 
+        {"alpha_params": [(0, 30, 50*3), (0, 25, 5*3),(5, 20, 10*3),(5, 40, 15*3),(5, 25, 20*3)], 
+        "features":[0, 0], "total_mass":300, "avg_number":100}, 
                     ]
     arms = np.array([0, 5, 10, 15, 20, 25, 30])
     #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
@@ -44,9 +45,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 10
+    n_experiments = 30
 
-    T = 365
+    T = 100
 
 
     for e in tqdm(range(n_experiments)):
