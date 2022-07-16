@@ -44,8 +44,14 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
     return solution[best_comb], solution_value[n_products, best_comb]
 
 
-def regret_bound(type="TS"):
-    pass
+def regret_bound(Lambda, variance, horizon, n_campaigns=5, size_of_superarm=5, arm_dimension=1,delta=0.95, type="TS"):
+    #gamma= O((log(t))^(d+1))
+    time_instants = np.arange(1, horizon+1)
+    B = 8*np.log(2*(time_instants*time_instants)*size_of_superarm*n_campaigns/delta)
+    c = 2*Lambda**2/(np.log(1+1/variance))
+    gamma_sum = n_campaigns*np.power(np.log(time_instants*size_of_superarm), arm_dimension+1)
+    regret = np.sqrt(c*n_campaigns*time_instants*B*gamma_sum)
+    return regret
 
 def clairvoyant(environment, arms, bounds, total_mass=100, phase=None, class_mask=[]):
     """ 

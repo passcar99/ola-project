@@ -1,7 +1,7 @@
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-
+from environment.Algorithms import regret_bound
 
 
 
@@ -15,7 +15,6 @@ if __name__ == "__main__":
     negative_regret_traces = []
     for i, trace in enumerate(data):
         cumsum = np.cumsum(opt-np.array(trace))
-        print(type(trace[0]))
         if cumsum[-1] < 0:
             negative_regret_traces.append(cumsum)
             print(np.sum(np.array(trace)>=opt))
@@ -26,4 +25,11 @@ if __name__ == "__main__":
     plt.show()
     for trace in negative_regret_traces:
         plt.plot(np.array(trace))
+    plt.show()
+
+    mean = np.mean(data,axis=0)
+    variance = np.var(data)
+    regret = regret_bound(100*5*5, variance, 100)
+    t = np.arange(1, 101)
+    plt.plot(mean/regret)
     plt.show()
