@@ -188,6 +188,8 @@ if __name__ == '__main__':
     #save_rewards(ucb_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner.NAME, -1)
     save_rewards(ucb_detecting_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_detecting.NAME+'_detecting', -1)
     save_rewards(ucb_sliding_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_sliding.NAME+'_sliding', -1)
+    save_rewards(ex_ucb_detecting_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_detecting.NAME+'_detecting_ex', -1)
+    save_rewards(ex_ucb_sliding_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_sliding.NAME+'_sliding_ex', -1)
 
     #Must Be substitued with the Regret
     #plt.figure(0)
