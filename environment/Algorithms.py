@@ -32,22 +32,20 @@ def budget_allocations(value_matrix, budgets, subtract_budget=False):
                     values.append(solution_value[product, j]+value_matrix[product, i-j]) #solution values starts from product 0
                     temp_sol.append(solution[j].copy())
                     temp_sol[-1][product] = b_i-b_j
-                #else:
-                    #values.append(solution_value[product-1, j]+value_matrix[product, i-j]) #if previous one is not a feasible solution according to budget
-            
             best_comb = np.argmax(values) # TODO break ties
             solution_value[product+1, i] = values[best_comb]
-
-            """ sol = np.zeros(shape=(n_products, 1))
-            sol = solution[best_comb]
-            sol[product] = budgets[i -best_comb] """
             sol = temp_sol[best_comb]
             new_solution.append(sol)
         solution = new_solution
     if subtract_budget:
         solution_value[n_products] -= np.array(budgets)
     best_comb = np.argmax(solution_value[n_products])
+    print(solution_value)
     return solution[best_comb], solution_value[n_products, best_comb]
+
+
+def regret_bound(type="TS"):
+    pass
 
 def clairvoyant(environment, arms, bounds, total_mass=100, phase=None, class_mask=[]):
     """ 

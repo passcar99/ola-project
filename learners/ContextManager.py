@@ -88,10 +88,10 @@ class ContextManager(Learner):
 
         
     def update_model(self):
-        if self.t%14==0 and self.t>14: # every two weeks after first month
+        if self.t%14==0 and self.t>30: # every two weeks after first month
             context_generation_alg = ContextGeneration(self.n_products, self.arms, self.margins, self.env, self.unfeasible_arms)
             grouped_classes = np.zeros((len(self.user_data_contexts)))
-            context_generation_alg.compute_split(self.user_data_contexts.values(), [0, 1], grouped_classes)
+            context_generation_alg.compute_split(list(self.user_data_contexts.values()), [0, 1], grouped_classes)
             self.contexts = [] # discard old context structure
             print("grouped_classes: ")
             print(grouped_classes)

@@ -50,18 +50,21 @@ class ContextGeneration():
             n_feature_values = 1
         else:
             n_feature_values = 2
-        pulled_arms = [[[] for _ in range(self.n_products)] for _ in range(n_feature_values)]
-        rewards_per_product = [[[] for _ in range(self.n_products)] for _ in range(n_feature_values)]
+        T = len(user_category_data[0].pulled_arms[0])
+        pulled_arms = np.zeros((n_feature_values, self.n_products, T))
+        rewards_per_product = np.zeros((n_feature_values, self.n_products, T))
+
         n_users = np.zeros((n_feature_values))
         # populate list of data
         for user_cat in user_category_data:
             feature_value = int(user_cat.features[feature]) if feature != -1 else 0
             n_users[feature_value] += user_cat.n_users
             for product in range(self.n_products):
-                pulled_arms[feature_value][product].extend(user_cat.pulled_arms[product])
-                rewards_per_product[feature_value][product].extend(user_cat.rewards_per_product[product])
+                pulled_arms[feature_value][product]+=np.array(user_cat.pulled_arms[product]).flatten()
+                rewards_per_product[feature_value][product]+=np.array(user_cat.rewards_per_product[product])* user_cat.n_users
         value_matrix = np.zeros((n_feature_values*self.n_products, len(self.arms)))
         for i in range(n_feature_values): # for every feature value
+            rewards_per_product[i] /= n_users[i]
             for product in range(self.n_products): # for every product
                 unique_values_and_counts = np.unique(pulled_arms[i][product], return_counts=True)
                 T = len(pulled_arms[i][product])
