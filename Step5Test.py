@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     n_experiments = 10
 
-    T = 100
+    T = 60
 
 
     for e in tqdm(range(n_experiments)):
