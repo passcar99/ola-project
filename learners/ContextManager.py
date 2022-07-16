@@ -117,7 +117,6 @@ class ContextManager(Learner):
     def pull_arm(self):
         # take estimated matrix from each learner and run algorithm
         value_matrix = np.vstack([context.learner.compute_value_matrix() for context in self.contexts])
-        print(value_matrix)
         #user_classes = [context.feature_list for context in self.contexts]
         super_arm_shallow = budget_allocations(value_matrix, self.arms, True)[0]
         super_arm = [(context.feature_list, super_arm_shallow[i*5:i*5+self.n_products]) for i, context in enumerate(self.contexts)]

@@ -71,7 +71,6 @@ class Environment():
     def simplified_round(self, product, n_sim = 0):
         alphas = np.zeros((len(self.con_matrix)+1))
         alphas[product+1 ]= 1
-        print(self.margins, self.prob_buy, self.avg_sold)
         return self.round(alphas)
 
     def alpha_functions(self, phase=None):
