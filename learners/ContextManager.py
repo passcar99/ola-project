@@ -52,7 +52,7 @@ class ContextManager(Learner):
         learner = self.learner_type(self.arms, conpam_matrix, con_matrix, prob_buy, self.avg_sold, margins, bounds) 
         context = Context(feature_list, learner)
         self.contexts = [context]
-        self.tot_visits = 0
+        self.tot_visits = np.zeros((self.n_products))
 
     
     def update_observations(self, pulled_arms, reward):
@@ -69,14 +69,12 @@ class ContextManager(Learner):
                     user_data.rewards_per_product[product].append(alphas[product+1])
                 user_data.n_users = (user_data.n_users * (self.t-1) + r["n_users"])/(self.t)  
                 items_sold = r["items"]
-                today_visits = items_sold.shape[0]
-
-                today_avg_sold = np.nanmean(items_sold, axis=0)
-                mask = np.logical_not(np.isnan(today_avg_sold))
+                today_visits = np.sum(np.logical_not(np.isnan(items_sold)), axis=0)
+                today_sum_sold = np.nansum(items_sold, axis=0)
+                #mask = np.logical_not(np.isnan(today_avg_sold))
                 #running average to be more efficient. Only at the first iteration tot_visits==0, consequently avg_sold is ignored
-                self.avg_sold[mask] = (self.avg_sold[mask] * self.tot_visits + today_avg_sold[mask]* today_visits)/(self.tot_visits + today_visits)
+                self.avg_sold[today_visits!=0] = ((self.avg_sold * self.tot_visits + today_sum_sold)/(self.tot_visits + today_visits))[today_visits!=0]
                 self.tot_visits += today_visits
-                self.env.avg_sold = self.avg_sold
             context_reward = {
                 "n_users": n_users,
                 "alphas": np.sum(np.array([r["n_users"]*r["alphas"] for r in rewards_per_context[context_id]]), axis=0 )/n_users,

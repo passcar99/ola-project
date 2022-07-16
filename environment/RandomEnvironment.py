@@ -62,7 +62,7 @@ class RandomEnvironment():
                     budgets=np.array(cases[1])*n_users[cat_idx]/n_users[cases[0]].sum()
             if budgets[0]==-1:
                 raise Exception("A user is missing from budgets_per_class")
-            items_sold = np.zeros((user_category['n_users'], 5))
+            items_sold = np.zeros((user_category['n_users'], 5))+np.nan
             activation_history = np.zeros((user_category['n_users'], 5))
             betas = user_class.get_alpha_from_budgets(budgets, self.t)
             betas[betas<0]=0

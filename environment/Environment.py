@@ -17,7 +17,7 @@ class Environment():
         self.con_matrix=con_matrix
         self.lam=0.5#implicit in Con_matrix
         self.prob_buy=prob_buy
-        self.expected_number_sold=expected_number_sold
+        self.avg_sold=expected_number_sold
         self.margins=margins
         self.n_prods = len(self.margins)
 
@@ -59,11 +59,11 @@ class Environment():
 
         probabilities_on_nodes=probability_from_alpha1+probability_from_alpha2+probability_from_alpha3+probability_from_alpha4+probability_from_alpha5
 
-        value_from_node1=probabilities_on_nodes[0]*self.expected_number_sold[0]*self.margins[0]
-        value_from_node2=probabilities_on_nodes[1]*self.expected_number_sold[1]*self.margins[1]
-        value_from_node3=probabilities_on_nodes[2]*self.expected_number_sold[2]*self.margins[2]
-        value_from_node4=probabilities_on_nodes[3]*self.expected_number_sold[3]*self.margins[3]
-        value_from_node5=probabilities_on_nodes[4]*self.expected_number_sold[4]*self.margins[4]        
+        value_from_node1=probabilities_on_nodes[0]*self.avg_sold[0]*self.margins[0]
+        value_from_node2=probabilities_on_nodes[1]*self.avg_sold[1]*self.margins[1]
+        value_from_node3=probabilities_on_nodes[2]*self.avg_sold[2]*self.margins[2]
+        value_from_node4=probabilities_on_nodes[3]*self.avg_sold[3]*self.margins[3]
+        value_from_node5=probabilities_on_nodes[4]*self.avg_sold[4]*self.margins[4]        
 
         total_value=value_from_node1+value_from_node2+value_from_node3+value_from_node4+value_from_node5
         return total_value
