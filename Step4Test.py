@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
-from utils import save_rewards, plot_and_save_rewards
+from utils import save_rewards, plot_and_save_regrets
 import datetime
+import warnings
+warnings.filterwarnings("ignore")
 
 EXPERIMENT_NAME = "Step4"
 DISPLAY_FIGURE=False
@@ -38,15 +40,15 @@ if __name__ == '__main__':
     n_products = len(connectivity_matrix)
     n_arms = len(arms)
 
-    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100)
+    optimal_alloc, opt = clairvoyant(env, arms, bounds, 200)
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 10
+    n_experiments = 5
 
-    T = 365
+    T = 100
 
 
     for e in tqdm(range(n_experiments)):
@@ -85,7 +87,7 @@ if __name__ == '__main__':
     
     print(optimal_alloc, opt)
     
-    plot_and_save_rewards([ts_rewards_per_experiment, ucb_rewards_per_experiment],
+    plot_and_save_regrets([ts_rewards_per_experiment, ucb_rewards_per_experiment],
                         clairvoyant_rewards_per_experiment, ["TS", "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)

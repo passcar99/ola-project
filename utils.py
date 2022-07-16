@@ -37,7 +37,7 @@ def save_rewards(rewards_list, experiment_name, learner_name, experiment_id=0):
         json.dump(rewards_list, fp)
 
 
-def plot_and_save_rewards(rewards_list, clairvoyant_rewards, learner_name_list, experiment_name, experiment_lenght, display_figure=True):
+def plot_and_save_regrets(rewards_list, clairvoyant_rewards, learner_name_list, experiment_name, experiment_lenght, display_figure=True):
     fig = plt.figure(0)
     plt.ylabel("Regret, "+ experiment_name)
     plt.xlabel("t")

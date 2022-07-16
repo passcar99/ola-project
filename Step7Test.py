@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 from environment.Algorithms import budget_allocations, clairvoyant
-from utils import plot_gaussian_process, save_rewards, plot_and_save_rewards
+from utils import plot_gaussian_process, save_rewards, plot_and_save_regrets
 import warnings
 import datetime
 warnings.filterwarnings("ignore")
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 1
+    n_experiments = 2
 
     T = 100
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
             reward_ts = env.round(pulled_arm_ts, observed_features=True)
             reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
-
+            print(reward_ts[0]['profit'])
             
             clairvoyant_rewards.append(opt)
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     #print(optimal_alloc, opt)
 
-    plot_and_save_rewards([ts_rewards_per_experiment, ucb_rewards_per_experiment],
+    plot_and_save_regrets([ts_rewards_per_experiment, ucb_rewards_per_experiment],
                         clairvoyant_rewards_per_experiment, ["TS",  "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
     """ plt.figure(1)

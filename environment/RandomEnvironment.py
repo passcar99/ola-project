@@ -78,7 +78,6 @@ class RandomEnvironment():
                 self.recursion = 1
                 activated_nodes = np.zeros((5), dtype=int)
                 bought_nodes = np.ones((5))*(np.nan)
-                print(bought_nodes)
                 self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 items_sold[i, :] = bought_nodes
                 activation_history[i, :] = activated_nodes
