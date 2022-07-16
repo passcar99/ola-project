@@ -71,7 +71,6 @@ class ContextManager(Learner):
                 items_sold = r["items"]
                 today_visits = items_sold.shape[0]
 
-                items_sold[items_sold==0] = np.nan # do not consider 0s when taking the mean (assume at least one bought)
                 today_avg_sold = np.nanmean(items_sold, axis=0)
                 mask = np.logical_not(np.isnan(today_avg_sold))
                 #running average to be more efficient. Only at the first iteration tot_visits==0, consequently avg_sold is ignored

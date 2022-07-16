@@ -62,7 +62,6 @@ class RandomEnvironment():
                     budgets=np.array(cases[1])*n_users[cat_idx]/n_users[cases[0]].sum()
             if budgets[0]==-1:
                 raise Exception("A user is missing from budgets_per_class")
-            cusum = np.zeros((5))
             items_sold = np.zeros((user_category['n_users'], 5))
             activation_history = np.zeros((user_category['n_users'], 5))
             betas = user_class.get_alpha_from_budgets(budgets, self.t)
@@ -78,12 +77,14 @@ class RandomEnvironment():
                     continue
                 self.recursion = 1
                 activated_nodes = np.zeros((5), dtype=int)
-                bought_nodes = np.zeros((5))
-                cusum += self.site_landing(landing_product-1, activated_nodes , bought_nodes)
+                bought_nodes = np.ones((5))*(np.nan)
+                print(bought_nodes)
+                self.site_landing(landing_product-1, activated_nodes , bought_nodes)
                 items_sold[i, :] = bought_nodes
                 activation_history[i, :] = activated_nodes
             user_category['items'] = items_sold
-            user_category['profit'] = cusum.flatten().dot(self.margins.transpose()) - np.sum(budgets)
+            bought_quantities = np.nansum(items_sold, axis=0)
+            user_category['profit'] = bought_quantities.flatten().dot(self.margins.transpose()) - np.sum(budgets)
             user_category['activation_history'] = activation_history
             if observed_features:
                 user_category['features'] = self.user_classes[cat_idx].features
@@ -116,8 +117,8 @@ class RandomEnvironment():
         if buy == 0:
             return bought_nodes
         num_bought = np.random.poisson(self.avg_sold[landing_product])
-        while num_bought==0:
-            num_bought = np.random.poisson(self.avg_sold[landing_product])
+        """ while num_bought==0:
+            num_bought = np.random.poisson(self.avg_sold[landing_product]) """
         bought_nodes[landing_product] = num_bought
         sec_prod_prob = self.con_matrix[landing_product].flatten()
         secondary_products = np.argsort(sec_prod_prob)
