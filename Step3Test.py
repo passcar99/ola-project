@@ -54,7 +54,7 @@ if __name__ == '__main__':
     tsTOP5D_rewards_per_experiment = []
 
     clairvoyant_rewards_per_experiment = []
-    n_experiments = 30
+    n_experiments = 5
 
     T = 100
 
