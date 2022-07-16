@@ -73,18 +73,14 @@ class ContextManager(Learner):
                 today_sum_sold = np.nansum(items_sold, axis=0)
                 #mask = np.logical_not(np.isnan(today_avg_sold))
                 #running average to be more efficient. Only at the first iteration tot_visits==0, consequently avg_sold is ignored
-                print(self.avg_sold)
-                self.avg_sold = (self.avg_sold * self.tot_visits + today_sum_sold)/(self.tot_visits + today_visits)
-                print(self.avg_sold)
+                self.avg_sold[today_visits!=0] = ((self.avg_sold * self.tot_visits + today_sum_sold)/(self.tot_visits + today_visits))[today_visits!=0]
                 self.tot_visits += today_visits
-                print(self.tot_visits, today_visits)
             context_reward = {
                 "n_users": n_users,
                 "alphas": np.sum(np.array([r["n_users"]*r["alphas"] for r in rewards_per_context[context_id]]), axis=0 )/n_users,
                 "profit": np.sum([r["profit"] for r in rewards_per_context[context_id]])
             }
             context.learner.env.avg_sold = self.avg_sold
-            print(self.avg_sold)
             context.learner.update(np.array(pulled_arms[context_id][1]), context_reward) # IMPORTANT assume same order as played
 
         

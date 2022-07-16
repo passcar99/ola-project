@@ -28,13 +28,13 @@ class GPUCB_Learner4(GPUCB_Learner):
         Update the average number of items sold.
         """
         super().update_model()
-        today_visits = items_sold.shape[0]
-        today_avg_sold = np.nanmean(items_sold, axis=0)
-        mask = np.logical_not(np.isnan(today_avg_sold))
+        today_visits = np.sum(np.logical_not(np.isnan(items_sold)), axis=0)
+        today_sum_sold = np.nansum(items_sold, axis=0)
         #running average to be more efficient. Only at the first iteration tot_visits==0, consequently avg_sold is ignored
-        self.avg_sold[mask] = (self.avg_sold[mask] * self.tot_visits + today_avg_sold[mask]* today_visits)/(self.tot_visits + today_visits)
+        self.avg_sold[today_visits!=0] = ((self.avg_sold * self.tot_visits + today_sum_sold)/(self.tot_visits + today_visits))[today_visits!=0]
         self.tot_visits += today_visits
         self.env.avg_sold = self.avg_sold
+        print(self.avg_sold)
 
     def update(self, pulled_arm, reward):
         self.t += 1
