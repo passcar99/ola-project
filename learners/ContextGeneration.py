@@ -67,10 +67,11 @@ class ContextGeneration():
         for i in range(n_feature_values): # for every feature value
             rewards_per_product[i] /= n_users[i]
             for product in range(self.n_products): # for every product
-                unique_values_and_counts = np.unique(pulled_arms[i][product], return_counts=True)
+                x = np.array(pulled_arms[i][product]).flatten()
+                unique_values_and_counts = np.unique(x, return_counts=True)
                 T = len(pulled_arms[i][product])
                 confidence = np.sqrt(-np.log(0.95)/unique_values_and_counts[1]/2) # confidence=0.95
-                x = np.array(pulled_arms[i][product]).flatten()
+                print(unique_values_and_counts)
                 y = np.array(rewards_per_product[i][product])
                 means = np.hstack([np.mean(y[x==v]) for v in unique_values_and_counts[0].tolist()])
                 bounds = means-confidence

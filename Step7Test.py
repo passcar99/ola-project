@@ -28,16 +28,16 @@ if __name__ == '__main__':
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
     conpam_matrix = [ 
-        {"alpha_params": [(10, 50, 10), (5, 30, 15),(0, 50, 100),(0, 50, 100),(0, 40, 100)], #Private Rich
+        {"alpha_params": [(0, 50, 50), (0, 20, 30),(5, 50, 20),(0, 50, 100),(0, 40, 100)], #Private Rich
         "features":0, "total_mass":100, "avg_number":25}, 
-        {"alpha_params": [(15, 50, 10), (10, 30, 15),(0, 50, 50),(2, 50, 50),(1, 40, 50)], #Private Poor
+        {"alpha_params": [(0, 30, 70), (0, 30, 60),(5, 50, 50),(2, 50, 50),(1, 40, 50)], #Private Poor
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
+        {"alpha_params": [(0, 30, 70), (0, 50, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
         "features":2, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 40, 7),(8, 40, 10),(10, 50, 5)], #Company Poor
+        {"alpha_params": [(0, 30, 70), (0, 50, 50),(5, 40, 7),(8, 40, 10),(10, 50, 5)], #Company Poor
         "features":3, "total_mass":100, "avg_number":25}]
-    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-    bounds = np.array([[-1, 100],[-2, 100],[-1, 100],[-1, 100],[-1, 100]])
+    arms = np.array([0, 2.5, 5,7.5, 10, 12.5,15,17.5, 20,22.5, 25,27.5, 30])
+    bounds = np.array([[-1, 100],[-1, 100],[-1, 100],[-1, 100],[-1, 100]])
 
     env = Environment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
     
@@ -60,33 +60,33 @@ if __name__ == '__main__':
     for e in tqdm(range(n_experiments)):
         env = RandomEnvironment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
         ts_learner = ContextManager(arms,  conpam_matrix, connectivity_matrix, prob_buy,  margins, bounds ,'fast', "TS")
-        ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix, prob_buy, margins, bounds ,'fast', "UCB")
+        #ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix, prob_buy, margins, bounds ,'fast', "UCB")
 
         ts_learner.avg_n_users = 100
-        ucb_learner.avg_n_users = 100
+        #ucb_learner.avg_n_users = 100
 
         clairvoyant_rewards = []
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             print(pulled_arm_ts)
-            pulled_arm_ucb = ucb_learner.pull_arm()
-            print(pulled_arm_ucb)
+            #pulled_arm_ucb = ucb_learner.pull_arm()
+            #print(pulled_arm_ucb)
 
 
             reward_ts = env.round(pulled_arm_ts, observed_features=True)
-            reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
+            #reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
             print("--", np.sum(r['profit'] for r in reward_ts), opt)
             
             clairvoyant_rewards.append(opt)
 
             ts_learner.update(pulled_arm_ts, reward_ts)
-            ucb_learner.update(pulled_arm_ucb, reward_ucb)
+            #ucb_learner.update(pulled_arm_ucb, reward_ucb)
 
             
         #print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
-        ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        #ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
         if e%4==0:
             now = '-'+str(datetime.datetime.now())
             save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME+"TS", -1)

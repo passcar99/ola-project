@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 15
+    n_experiments = 30
 
     T = 160
 
@@ -66,19 +66,19 @@ if __name__ == '__main__':
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
-            pulled_arm_ucb = ucb_learner.pull_arm()
+            #pulled_arm_ucb = ucb_learner.pull_arm()
             #pulled_arm_5D = tsTOP5D_learner.pull_arm()
 
 
             reward_ts = env.round(pulled_arm_ts)
-            reward_ucb = env.round(pulled_arm_ucb)
+            #reward_ucb = env.round(pulled_arm_ucb)
             #reward_5D = env.round(pulled_arm_5D)
 
             
             clairvoyant_rewards.append(opt)
 
             ts_learner.update(pulled_arm_ts, reward_ts[0])
-            ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
+            #ucb_learner.update(pulled_arm_ucb, reward_ucb[0])
             #tsTOP5D_learner.update(pulled_arm_5D, reward_5D[0])
 
         print(ts_learner.con_matrix)
