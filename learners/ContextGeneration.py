@@ -36,10 +36,10 @@ class ContextGeneration():
         if maximum > value_before_split:
             argmax = np.argmax(values_after_split)
             left_user_category_data = [ cat_data.features[argmax]==0 and (fixed_groups is None or not fixed_groups[i]) for i, cat_data in enumerate(user_category_data)  ]
-            classes_id_left = [c.class_id for i,  c in enumerate(user_category_data) if left_user_category_data[i] ]
-            classes_id_right = [c.class_id for i,  c in enumerate(user_category_data) if not left_user_category_data[i]]
+            """ classes_id_left = [c.class_id for i,  c in enumerate(user_category_data) if left_user_category_data[i] ]
+            classes_id_right = [c.class_id for i,  c in enumerate(user_category_data) if not left_user_category_data[i]] """
             print("->",grouped_classes)
-            grouped_classes = np.array(partition[argmax])
+            grouped_classes[:] = np.array(partition[argmax])
             print("-->",grouped_classes)
 
             if len(features) > 1:
@@ -51,8 +51,9 @@ class ContextGeneration():
                 new_feature_list.remove(features[argmax]) 
                 max_r = self.compute_split(user_category_data, new_feature_list, grouped_classes_copy, left_user_category_data)
                 print(grouped_classes_copy, grouped_classes)
-                if max_r > maximum and max_r > max_l:
-                    grouped_classes = grouped_classes_copy
+                max_all = self.compute_split(user_category_data, new_feature_list, grouped_classes, left_user_category_data)
+                if max_r > maximum and max_r > max_l and max_r>max_all:
+                    grouped_classes[:] = grouped_classes_copy
         return np.max([maximum, value_before_split])
         
             
