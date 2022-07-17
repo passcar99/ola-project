@@ -184,8 +184,8 @@ if __name__ == '__main__':
             #plot_gaussian_process(ucb_learner_detecting)
 
         #ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
-        ucb_detecting_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
-        ucb_sliding_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
+        ucb_detecting_rewards_per_experiment.append(ucb_learner_detecting.collected_rewards)
+        ucb_sliding_rewards_per_experiment.append(ucb_learner_sliding.collected_rewards)
         
         #ex_ucb_rewards_per_experiment.append(ex_reward_ucb)
         ex_ucb_detecting_rewards_per_experiment.append(ex_reward_ucb_detecting)
@@ -198,14 +198,14 @@ if __name__ == '__main__':
     save_rewards(ex_ucb_sliding_rewards_per_experiment, EXPERIMENT_NAME, ucb_learner_sliding.NAME+'_sliding_ex', -1)
 
     #Must Be substitued with the Regret
-    #plt.figure(0)
-    #plt.ylabel("regret")
-    #plt.xlabel("t")
-    #plt.plot(np.arange(0, T+1), regret_ucb, 'r')
-    #plt.plot(np.arange(0, T+1), regret_ucb_detecting, 'b')
-    #plt.plot(np.arange(0, T+1), regret_ucb_sliding, 'g')
-    #plt.legend(["UCB", "UCB_detecting", "UCB_sliding"])
-    #plt.show()
+    plt.figure(0)
+    plt.ylabel("regret")
+    plt.xlabel("t")
+    plt.plot(np.arange(0, T+1), regret_ucb, 'r')
+    plt.plot(np.arange(0, T+1), regret_ucb_detecting, 'b')
+    plt.plot(np.arange(0, T+1), regret_ucb_sliding, 'g')
+    plt.legend(["UCB", "UCB_detecting", "UCB_sliding"])
+    plt.show()
 
     ex_reward_Clayr=np.zeros(T)
     ex_reward_Clayr[0:breakpoints[0]]=opt[0]
