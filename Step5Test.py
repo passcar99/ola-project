@@ -17,8 +17,8 @@ DISPLAY_FIGURE=False
 
 
 if __name__ == '__main__':
-    connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
-                                    [0.5, 0, 0, 0.8, 0],
+    connectivity_matrix = np.array([[0, 0.9, 0, 0.0, 0.0],
+                                    [0.5, 0, 0, 0, 0],
                                     [0.0, 0.0, 0.0, 0.6, 0.6],
                                     [0.0, 0.0, 0.7, 0.0, 0.9],
                                     [0.0, 0.0, 0.7, 0.9, 0],
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 15
+    n_experiments = 30
 
     T = 160
 
