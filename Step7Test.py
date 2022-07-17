@@ -52,9 +52,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 10
+    n_experiments = 1
 
-    T = 160
+    T = 50
 
 
     for e in tqdm(range(n_experiments)):
@@ -71,11 +71,12 @@ if __name__ == '__main__':
             pulled_arm_ts = ts_learner.pull_arm()
             print(pulled_arm_ts)
             pulled_arm_ucb = ucb_learner.pull_arm()
+            print(pulled_arm_ucb)
 
 
             reward_ts = env.round(pulled_arm_ts, observed_features=True)
             reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
-            print(reward_ts[0]['profit'])
+            print("--", np.sum(r['profit'] for r in reward_ts), opt)
             
             clairvoyant_rewards.append(opt)
 
