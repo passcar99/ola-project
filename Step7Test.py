@@ -68,30 +68,30 @@ if __name__ == '__main__':
         ucb_learner = ContextManager(arms, conpam_matrix, connectivity_matrix, prob_buy, margins, bounds ,'fast', "UCB")
 
         ts_learner.avg_n_users = 100
-        #ucb_learner.avg_n_users = 100
+        ucb_learner.avg_n_users = 100
 
         clairvoyant_rewards = []
 
         for t in tqdm(range(0, T)):
             pulled_arm_ts = ts_learner.pull_arm()
             print(pulled_arm_ts)
-            #pulled_arm_ucb = ucb_learner.pull_arm()
+            pulled_arm_ucb = ucb_learner.pull_arm()
             #print(pulled_arm_ucb)
 
 
             reward_ts = env.round(pulled_arm_ts, observed_features=True)
-            #reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
+            reward_ucb = env.round(pulled_arm_ucb, observed_features=True)
             print("--", np.sum(r['profit'] for r in reward_ts), opt)
             
             clairvoyant_rewards.append(opt)
 
             ts_learner.update(pulled_arm_ts, reward_ts)
-            #ucb_learner.update(pulled_arm_ucb, reward_ucb)
+            ucb_learner.update(pulled_arm_ucb, reward_ucb)
 
             
         #print(ts_learner.collected_rewards, opt)
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
-        #ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
+        ucb_rewards_per_experiment.append(ucb_learner.collected_rewards)
         if e%4==0:
             now = '-'+str(datetime.datetime.now())
             save_rewards(ts_rewards_per_experiment, EXPERIMENT_NAME+now, ts_learner.NAME+"TS", -1)

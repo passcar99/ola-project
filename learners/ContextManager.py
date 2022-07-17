@@ -85,7 +85,7 @@ class ContextManager(Learner):
 
         
     def update_model(self):
-        if self.t%2==0 and self.t>5: # every two weeks after first month
+        if self.t%14==0 and self.t>14: # every two weeks after first month
             context_generation_alg = ContextGeneration(self.n_products, self.arms, self.margins, self.env, self.unfeasible_arms)
             grouped_classes = np.zeros((len(self.user_data_contexts)), dtype=np.int8)
             context_generation_alg.compute_split(list(self.user_data_contexts.values()), [0, 1], grouped_classes)
