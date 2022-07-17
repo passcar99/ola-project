@@ -48,10 +48,7 @@ if __name__ == '__main__':
     print("OPTIMAL ALLOCATION AND VALUE--")
     print(optimal_alloc, opt)
     print("------------------------------")
-    optimal_alloc, opt = clairvoyant(env, arms, bounds, 100, ) # last two classes are the same
-    print("OPTIMAL ALLOCATION AND VALUE--")
-    print(optimal_alloc, opt)
-    print("------------------------------")
+
     ts_rewards_per_experiment = []
     ucb_rewards_per_experiment = []
 
