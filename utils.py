@@ -60,3 +60,12 @@ def plot_and_save_regrets(rewards_list, clairvoyant_rewards, learner_name_list, 
         plt.show()
     else:
         plt.close(fig)
+
+def plot_reward_distribution(environment, arm):
+    rews = []
+    for _ in range(10000):
+        rews.append(np.sum([r['profit'] for r in environment.round(arm)]))
+    print(np.std(rews))
+    plt.title("Reward distribution")
+    plt.hist(rews, bins=100)
+    plt.show()

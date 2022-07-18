@@ -9,11 +9,14 @@ from environment.Environment import Environment
 
 
 if __name__ == "__main__":
-    filename = "backup/Step4-2022-07-16 15:18:46.202288/GPUCB_Learner4-1"
-    data =0
-    with open(filename) as fp:
-        data = json.load(fp)
-    opt = 71903.1402
+    filenames = ["backup/WHOLE_REWARDS/backup/WHOLE_STEP3/TS-1"]#, "backup/WHOLE_REWARDS/backup/WHOLE_STEP5/UCB-1"]
+    names = ["TS", "UCB"]
+    colors = ['r', 'g']
+    data =[]
+    for filename in filenames:
+        with open(filename) as fp:
+            data.append(json.load(fp))
+    opt = 72176.05288485 # fully
     negative_regret_traces = []
     positive_regret_traces = []
     connectivity_matrix = np.array([[0, 0.9, 0.3, 0.0, 0.0],
@@ -26,45 +29,51 @@ if __name__ == "__main__":
     #prob_buy = np.array([1, 1, 1, 1, 1])
     avg_sold = [2,4,1.5,2,3]
     margins = [1000, 300, 100, 75, 30]
-    conpam_matrix = [
-        {"alpha_params": [(0, 30, 50*3), (0, 25, 5*3),(5, 20, 10*3),(5, 40, 15*3),(5, 25, 20*3)], 
-        "features":[0, 0], "total_mass":300, "avg_number":100}, 
-                    ]
-    arms = np.array([0, 5, 10, 15, 20, 25, 30])
-    #bounds = np.array([[5, 100],[0, 80],[0, 50],[20, 100],[0, 100]])
-    bounds = np.array([[2, 100],[2, 100],[-1, 100],[2, 100],[-1, 100]])
+    conpam_matrix = [ 
+        {"alpha_params": [(10, 50, 10), (5, 30, 15),(0, 50, 100),(0, 50, 100),(0, 40, 100)], #Private Rich
+        "features":0, "total_mass":100, "avg_number":25}, 
+        {"alpha_params": [(15, 50, 10), (10, 30, 15),(0, 50, 50),(2, 50, 50),(1, 40, 50)], #Private Poor
+        "features":1, "total_mass":100, "avg_number":25},
+        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
+        "features":2, "total_mass":100, "avg_number":25},
+        {"alpha_params": [(0, 30, 100), (0, 50, 50),(5, 40, 7),(8, 40, 10),(10, 50, 5)], #Company Poor
+        "features":3, "total_mass":100, "avg_number":25}]
+    arms = np.array([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+    bounds = np.array([[-1, 100],[-2, 100],[-1, 100],[-1, 100],[-1, 100]])
+    
 
-    env = Environment(conpam_matrix, connectivity_matrix, prob_buy, avg_sold, margins)
-    optimal_arm, opt = clairvoyant(env, arms, bounds, 300)
-    """ rews = []
-    for _ in range(10000):
-        rews.append(env.round(optimal_arm)[0]['profit'])
-    print(np.std(rews))
-    plt.title("Reward distribution")
-    plt.hist(rews, bins=100)
-    plt.show() """
-    #opt = np.mean(rews)
-    for i, trace in enumerate(data):
-        cumsum = np.cumsum(opt-np.array(trace))
-        if cumsum[-1] < 0:
-            negative_regret_traces.append(cumsum)
-            print(np.sum(np.array(trace)>=opt))
-            plt.hist(trace, bins = 25, density=True)
-        else:
-            positive_regret_traces.append(cumsum)
-        plt.plot(cumsum)
-    plt.show()
-    plt.axvline(opt)
-    #plt.plot(np.arange(0, 100), [opt]*100)
+    
+    for i, learner_traces in enumerate(data):
+        negative_regret_traces.append([])
+        positive_regret_traces.append([])
+        for trace in learner_traces:
+            cumsum = np.cumsum(opt-np.array(trace))
+            if cumsum[-1] < 0:
+                negative_regret_traces[-1].append(cumsum)
+                print(np.sum(np.array(trace)>=opt))
+                plt.hist(trace, bins = 25, density=True)
+            else:
+                positive_regret_traces[-1].append(cumsum)
     
     plt.show()
-    for trace in negative_regret_traces:
-        plt.plot(np.array(trace))
+    for learner_traces in negative_regret_traces:
+        for trace in learner_traces:
+            plt.plot(np.array(trace))
     plt.show()
 
-    mean = np.mean(positive_regret_traces,axis=0)
-    variance = np.var(data)
-    regret = regret_bound(1600, variance, 100)
-    t = np.arange(1, 101)
-    plt.plot(mean/regret)
+    """ from scipy.optimize import minimize, LinearConstraint
+    fun = lambda x: np.square(x - 2*(1-np.exp(-x)))
+    x = minimize(fun, 2, constraints=[LinearConstraint(1, 0, 1000)]).x
+    print(minimize(fun, 5))
+    print(x/(1-np.exp(-x))) """
+    mean_ts = np.mean(positive_regret_traces[0],axis=0)
+    variance_ts = np.var(data[0])
+    t = np.arange(1, len(mean_ts))
+    regret = regret_bound(1672.0243094153861, 0.1, len(mean_ts))
+    """ mean_ucb = np.mean(positive_regret_traces[1],axis=0)
+    variance_ucb = np.var(data[1]) """
+    t = np.arange(1, len(mean_ts))
+    plt.plot(mean_ts/regret, color='r')
+    #plt.plot(mean_ucb/regret, color='g')
+    plt.legend(["TS", "UCB"])
     plt.show()
