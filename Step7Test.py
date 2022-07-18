@@ -32,7 +32,7 @@ if __name__ == '__main__':
         "features":0, "total_mass":100, "avg_number":25}, 
         {"alpha_params": [(0, 10, 10), (0, 10, 20),(5, 50, 20),(2, 50, 50),(1, 20, 50)], #Private Poor
         "features":1, "total_mass":100, "avg_number":25},
-        {"alpha_params": [(0, 20, 80), (0, 20, 30),(5, 20, 7),(8, 20, 10),(10, 25, 5)], #Company Rich
+        {"alpha_params": [(0, 20, 80), (0, 20, 30),(5, 40, 7),(8, 40, 10),(10, 25, 5)], #Company Rich
         "features":2, "total_mass":100, "avg_number":25},
         {"alpha_params": [(0, 20, 80), (0, 20, 30),(5, 40, 7),(8, 40, 10),(10, 25, 5)], #Company Poor
         "features":3, "total_mass":100, "avg_number":25
@@ -54,9 +54,9 @@ if __name__ == '__main__':
 
     clairvoyant_rewards_per_experiment = []
 
-    n_experiments = 1
+    n_experiments = 10
 
-    T = 100
+    T = 160
 
 
     for e in tqdm(range(n_experiments)):
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     #print(optimal_alloc, opt)
 
-    plot_and_save_regrets([ts_rewards_per_experiment, #ucb_rewards_per_experiment
+    plot_and_save_regrets([ts_rewards_per_experiment, ucb_rewards_per_experiment
     ],
                         clairvoyant_rewards_per_experiment, ["TS",  "UCB"], EXPERIMENT_NAME, T, display_figure=DISPLAY_FIGURE)
 
